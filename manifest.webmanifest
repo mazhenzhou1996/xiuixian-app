@@ -1,0 +1,19 @@
+{
+  "name": "修仙问答 - 修仙主题问答社区",
+  "short_name": "修仙问答",
+  "description": "修仙主题问答社区：提问、回答、评论、付费咨询、悬赏榜、本校圈子",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f8fa",
+  "theme_color": "#2563eb",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

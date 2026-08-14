@@ -1,0 +1,1 @@
+const t={mockSeconds:5};function c(){const{mockSeconds:n}=t;return new Promise(s=>{{let e=n;const o=()=>{console.log(`[广告] 模拟激励视频播放中... ${e}s 后解锁（配置真实广告位后替换）`),e-=1,e<=0?(console.log("[广告] 观看完成，解锁"),s(!0)):setTimeout(o,1e3)};o();return}})}export{c as p};
