@@ -1,0 +1,17 @@
+# 修仙问答 robots.txt
+# 允许所有主流搜索引擎（百度/Google/Bing/字节系/头条/DuckDuckGo 等）抓取
+User-agent: *
+Allow: /
+
+# 禁止抓取登录/注册/私信/后台等无收录价值页面
+Disallow: /login
+Disallow: /register
+Disallow: /messages/private
+Disallow: /admin
+Disallow: /settings
+
+# 站点地图（提交给各搜索引擎可显著加快收录）
+Sitemap: https://xiuixian.app/sitemap.xml
+
+# 主机名规范（避免镜像站分散权重）
+Host: https://xiuixian.app

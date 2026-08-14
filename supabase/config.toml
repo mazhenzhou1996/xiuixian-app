@@ -1,0 +1,22 @@
+# 修仙问答 · Supabase 本地配置
+# 用途：supabase functions deploy 读取；生产变量通过 `supabase secrets set` 注入，不写本文件。
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "https://your-domain.example.com"
+additional_redirect_urls = ["http://localhost:5173"]
+jwt_expiry = 3600
+
+[functions.content-check]
+verify_jwt = false

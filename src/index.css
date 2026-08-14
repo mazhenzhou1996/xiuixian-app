@@ -1,0 +1,21 @@
+/* 字体使用系统字体栈，避免远程字体依赖（Google Fonts 在国内加载慢/不稳定） */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./tailwind-theme.css";
+@import "./typography.css";
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 基本设置 - 图片加载模式（全局） */
+/* 不加载：隐藏所有图片 */
+html[data-img-mode="off"] img {
+  display: none !important;
+}
+/* 低流量模糊加载：图片模糊占位 */
+html[data-img-mode="blur"] img {
+  filter: blur(6px);
+  transition: filter 0.4s ease;
+}
