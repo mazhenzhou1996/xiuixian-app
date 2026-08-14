@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PROJECT_REF = 'nwxtyxjborhrbesssopg';
-const PASSWORD = 'qpalWOSK159';
+const PASSWORD = process.env.SUPABASE_DB_PASSWORD || ''; // 从环境变量读取，勿提交真实密码
 
 const HOSTS = [
   { host: `aws-0-ap-southeast-1.pooler.supabase.com`, port: 5432, label: 'Singapore-5432' },
