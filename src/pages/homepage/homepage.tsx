@@ -129,7 +129,7 @@ export default function HomePage() {
         {mySchool ? (
           <div
             onClick={() => navigate(`/topic/school/${mySchool.id}`)}
-            className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl px-3.5 py-2.5 text-white relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform flex items-center gap-2"
+            className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl px-3.5 py-4 text-white relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform flex items-center gap-2"
           >
             <School className="w-5 h-5 shrink-0" />
             <div className="min-w-0">
@@ -140,7 +140,7 @@ export default function HomePage() {
         ) : (
           <div
             onClick={() => navigate('/topic/university')}
-            className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl px-3.5 py-2.5 text-white relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform flex items-center gap-2"
+            className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl px-3.5 py-4 text-white relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform flex items-center gap-2"
           >
             <School className="w-5 h-5 shrink-0" />
             <div className="min-w-0">

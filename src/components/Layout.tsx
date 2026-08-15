@@ -159,13 +159,13 @@ export const Layout = () => {
 
       <main
         className={`mx-auto max-w-[720px] ${
-          isAuthPage ? '' : 'pb-16'
+          'pb-11'
         }`}
       >
         <Outlet />
       </main>
 
-      {!isAuthPage && <BottomNav />}
+      <BottomNav />
 
       {/* 申诉弹窗 */}
       <Dialog open={appealOpen} onOpenChange={setAppealOpen}>

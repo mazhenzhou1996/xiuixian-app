@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bell, Gift, Wallet } from 'lucide-react';
+import { Search, Gift, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import { useXiuxianStore } from '@/store/useStore';
-import { supabase } from '@/lib/supabase';
 import { api } from '@/lib/api';
-import Avatar from '@/components/Avatar';
 
 const TOP_TABS = [
   { path: '/', label: '推荐' },
@@ -20,7 +18,6 @@ export default function TopNav() {
   const navigate = useNavigate();
   const store = useXiuxianStore();
   const currentUser = store.getCurrentUser();
-  const [unreadCount, setUnreadCount] = useState(0);
 
   // 签到状态（右上角签到系统，签到送赏金，复用 wallets 后端）
   const [checkedToday, setCheckedToday] = useState(false);
@@ -63,50 +60,26 @@ export default function TopNav() {
 
   const showTabs = ['/', '/hot', '/rank', '/follow'].includes(location.pathname);
 
-  // 未读通知数（TopNav 红点）+ Realtime 实时刷新
+  // 搜索行滚动隐藏（v34）：向下滚动隐藏搜索行，向上滚动或回到顶部恢复
+  const [searchHidden, setSearchHidden] = useState(false);
   useEffect(() => {
-    if (!currentUser) {
-      setUnreadCount(0);
-      return;
-    }
-    let cancelled = false;
-    const uid = String(currentUser.id);
-    const refresh = () =>
-      store.getUnreadNotificationCount().then((c) => { if (!cancelled) setUnreadCount(c); });
-    refresh();
-    // v16：60s 轮询兜底（Realtime 断连时未读数仍能刷新）
-    const timer = setInterval(refresh, 60_000);
-    // Realtime：订阅自己的通知插入事件（表未建时静默不触发）
-    let channel: any;
-    try {
-      channel = supabase
-        .channel(`notif:${uid}`)
-        .on('postgres_changes', {
-          event: 'INSERT', schema: 'public', table: 'notifications',
-          filter: `user_id=eq.${uid}`,
-        }, () => refresh())
-        .subscribe();
-    } catch { /* ignore */ }
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-      try { if (channel) supabase.removeChannel(channel); } catch { /* ignore */ }
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > lastY + 4 && y > 60) setSearchHidden(true);
+      else if (y < lastY - 4 || y < 60) setSearchHidden(false);
+      lastY = y;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id]);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-gray-100">
       <div className="max-w-[720px] mx-auto px-4">
+        {/* 搜索行：滚动时折叠（v34） */}
+        <div className={`overflow-hidden transition-all duration-300 ${searchHidden ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100'}`}>
         <div className="flex items-center gap-3 h-12">
-          {/* Logo */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
-              <span className="text-white font-bold text-xs">知</span>
-            </div>
-            <span className="font-semibold text-sm text-gray-900 hidden sm:block">修仙问答</span>
-          </div>
-
           {/* Search bar */}
           <button
             onClick={() => navigate('/search')}
@@ -141,41 +114,13 @@ export default function TopNav() {
                 {checkedToday ? '已签' : '签到'}
               </button>
             )}
-            <button
-              onClick={() => navigate(currentUser ? '/notifications' : '/login')}
-              className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-blue-600 relative"
-              aria-label="通知"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 px-1 rounded-full bg-red-500 text-white text-[10px] font-medium flex items-center justify-center">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => navigate(currentUser ? '/profile' : '/login')}
-              className="shrink-0"
-              aria-label="我的"
-            >
-              {currentUser ? (
-                <Avatar
-                  src={currentUser.avatar}
-                  alt={currentUser.nickname}
-                  className="w-7 h-7"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xs font-medium">
-                  登
-                </div>
-              )}
-            </button>
           </div>
+        </div>
         </div>
 
         {/* Top tabs */}
         {showTabs && (
-          <nav className="flex items-center gap-4 h-9 -mb-px">
+          <nav className="flex items-stretch h-[54px] -mb-px">
             {TOP_TABS.map((tab) => {
               const isActive = tab.path === '/'
                 ? location.pathname === '/'
@@ -185,7 +130,7 @@ export default function TopNav() {
                   key={tab.path}
                   to={tab.path}
                   end={tab.path === '/'}
-                  className={`relative text-[13px] transition-colors h-full flex items-center ${
+                  className={`relative flex-1 text-[15px] transition-colors h-full flex items-center justify-center ${
                     isActive
                       ? 'text-gray-900 font-semibold'
                       : 'text-gray-500 hover:text-gray-700'

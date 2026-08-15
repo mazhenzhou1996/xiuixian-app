@@ -17,10 +17,11 @@ import {
   Ticket,
   ChevronRight,
   BadgeCheck,
+  Trophy,
 } from 'lucide-react';
+import Avatar from '@/components/Avatar';
 import PageHeader from '@/components/PageHeader';
 import QuestionCard from '@/components/QuestionCard';
-import Avatar from '@/components/Avatar';
 import { useXiuxianStore } from '@/store/useStore';
 import { publicTopic } from '@/lib/adminapi';
 import { api } from '@/lib/api';
@@ -135,14 +136,6 @@ export default function UniversityPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, hotTab, school]);
 
-  // 本校道友榜（按所选学校聚合；无同校用户时回退全站）
-  const topUsers = useMemo(() => {
-    const all: any[] = store.getUsers();
-    const sameSchool = school ? all.filter((u: any) => u.school && u.school === school.name) : [];
-    const list = sameSchool.length > 0 ? sameSchool : all;
-    return [...list].sort((a, b) => b.points - a.points).slice(0, 3);
-  }, [store, school]);
-
   return (
     <div className="min-h-screen bg-gray-50 pb-4">
       <PageHeader title={cfg.title} />
@@ -165,7 +158,7 @@ export default function UniversityPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1.5">
                   <GraduationCap className="w-5 h-5 shrink-0" />
-                  <span className="text-base font-bold truncate">{school.name}</span>
+                  <span className="text-base font-bold break-words">{school.name}</span>
                   <button
                     onClick={() => setPickerOpen(true)}
                     className="shrink-0 text-sm font-semibold bg-red-500 rounded-full px-4 py-1.5 hover:bg-red-600 shadow-md shadow-red-200 active:scale-95 transition-all"
@@ -189,38 +182,25 @@ export default function UniversityPage() {
                   <MapPin className="w-3.5 h-3.5" />
                   {school.address}
                 </div>
-                {/* 付费咨询：缩短为一半宽度 */}
-                <button
-                  onClick={() => setPayOpen(true)}
-                  className="w-1/2 h-9 rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 text-white text-sm font-bold flex items-center justify-center gap-1.5 hover:from-amber-500 hover:to-orange-500 transition-colors"
-                >
-                  <Star className="w-4 h-4 fill-current" />
-                  {cfg.payText}
-                </button>
+                {/* 付费咨询 + 本校道友榜：一行各占一半 */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPayOpen(true)}
+                    className="flex-1 h-9 rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 text-white text-xs font-bold flex items-center justify-center gap-1 hover:from-amber-500 hover:to-orange-500 transition-colors min-w-0"
+                  >
+                    <Star className="w-3.5 h-3.5 fill-current shrink-0" />
+                    <span className="truncate">{cfg.payText}</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/rank')}
+                    className="flex-1 h-9 rounded-lg bg-white/20 text-white text-xs font-bold flex items-center justify-center gap-1 hover:bg-white/30 transition-colors min-w-0"
+                  >
+                    <Trophy className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">本校道友榜</span>
+                  </button>
+                </div>
               </div>
 
-              {/* 右侧：本校道友榜 */}
-              <div className="w-[38%] shrink-0 border-l border-white/15 pl-3.5">
-                <div className="text-xs font-semibold mb-2">本校道友榜</div>
-                <div className="space-y-2">
-                  {topUsers.map((u, i) => (
-                    <div key={u.id} className="flex items-center gap-1.5">
-                      <span className={`w-4 h-4 rounded text-[10px] font-bold flex items-center justify-center shrink-0 ${i === 0 ? 'bg-amber-400 text-white' : i === 1 ? 'bg-gray-300 text-white' : i === 2 ? 'bg-orange-300 text-white' : 'bg-white/15'}`}>
-                        {i + 1}
-                      </span>
-                      <Avatar src={u.avatar} alt={u.nickname} className="w-5 h-5" bgClass="bg-white/25" />
-                      <span className="text-[11px] truncate flex-1">{u.nickname}</span>
-                      <span className="text-[10px] text-blue-100">{u.points}</span>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={() => navigate('/rank')}
-                  className="mt-2.5 w-full h-6 rounded-full bg-white/15 text-[10px] text-white hover:bg-white/25 transition-colors"
-                >
-                  查看更多
-                </button>
-              </div>
             </div>
           </div>
         )}
