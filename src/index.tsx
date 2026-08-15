@@ -1,3 +1,4 @@
+import { App as CapacitorApp } from '@capacitor/app';
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -96,3 +97,17 @@ createRoot(document.getElementById("root")!).render(
     </BrowserRouter>
   </StrictMode>,
 );
+
+// ===== Android 杩斿洖閿紙v34锛夛細鏈夊巻鍙插垯杩斿洖涓婁竴椤碉紝闈為椤靛洖棣栭〉锛岄椤甸€€鍑?=====
+try {
+  CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+    const path = window.location.pathname;
+    if (canGoBack && window.history.length > 1) {
+      window.history.back();
+    } else if (path !== '/') {
+      window.location.href = '/';
+    } else {
+      CapacitorApp.exitApp();
+    }
+  });
+} catch { /* 闈?Capacitor 鐜蹇界暐 */ }
