@@ -26,6 +26,8 @@ jobs:
       - name: 安装依赖
         run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
       - name: 构建
+        env:
+          VITE_BASENAME: /xiuixian-app/
         run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

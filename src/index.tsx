@@ -6,12 +6,19 @@ import { BrowserRouter } from "react-router-dom";
 // 部署子路径支持：GitHub Pages 等子路径托管（如 /xiuixian-app/）需要 basename。
 // v36：自动推导部署根——取 pathname 第一段作为 basename（/xiuixian-app/ → /xiuixian-app/，根域名 → /），
 // 换域名/换托管零配置；也可用 .env 的 VITE_BASENAME 覆盖。
+// 已知应用路由（第一段命中则视为根域名部署，避免把 /wall /question 等误判为部署前缀）
+const KNOWN_ROUTES = [
+  'wall', 'question', 'hot', 'rank', 'follow', 'topic', 'search', 'ask', 'messages',
+  'profile', 'my', 'user', 'bounty', 'lost', 'beauty', 'credit', 'recycle',
+  'notifications', 'service', 'settings', 'comments', 'answer', 'consult-center',
+  'privacy', 'terms', 'changelog', 'download', 'login', 'register', 'admin',
+];
 function deriveBasename(): string {
   try {
     const p = window.location.pathname;
     if (!p || p === '/') return '/';
     const first = p.split('/')[1];
-    if (!first) return '/';
+    if (!first || KNOWN_ROUTES.includes(first)) return '/';
     return '/' + first + '/';
   } catch {
     return '/';

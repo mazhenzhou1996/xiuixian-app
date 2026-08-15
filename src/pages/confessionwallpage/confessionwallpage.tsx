@@ -577,7 +577,7 @@ export default function ConfessionWallPage() {
               </label>
               {confirmImage && <button onClick={() => setConfirmImage('')} className="text-xs text-red-400">移除</button>}
             </div>
-            {relConfirmed(confirmTarget) && (
+            {confirmTarget && relConfirmed(confirmTarget) && (
               <div className="flex items-center gap-1.5 text-xs text-rose-600 font-medium"><CheckCircle2 className="w-4 h-4" /> 双方已确认关系 ❤️</div>
             )}
           </div>
