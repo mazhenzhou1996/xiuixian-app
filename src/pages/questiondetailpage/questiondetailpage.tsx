@@ -50,6 +50,7 @@ export default function QuestionDetailPage() {
   const [followerCount, setFollowerCount] = useState(0);
   const [reportOpen, setReportOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [previewImg, setPreviewImg] = useState('');
   const [schoolName, setSchoolName] = useState('');
   // v19：追加悬赏 + 邀请回答
   const [bountyOpen, setBountyOpen] = useState(false);
@@ -287,7 +288,8 @@ export default function QuestionDetailPage() {
                   src={img}
                   alt=""
                   loading="lazy"
-                  className="w-full rounded-lg object-cover aspect-video"
+                  onClick={() => setPreviewImg(img)}
+                  className="w-full rounded-lg object-cover aspect-video cursor-zoom-in"
                 />
               ))}
             </div>
@@ -556,6 +558,27 @@ export default function QuestionDetailPage() {
           写回答
         </button>
       </div>
+      {/* 图片预览（v37 lightbox） */}
+      {previewImg && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center"
+          onClick={() => setPreviewImg('')}
+        >
+          <img
+            src={previewImg}
+            alt="预览"
+            className="max-w-[92%] max-h-[85vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setPreviewImg('')}
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 text-white text-xl flex items-center justify-center hover:bg-white/30 transition-colors"
+            aria-label="关闭预览"
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 }

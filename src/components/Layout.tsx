@@ -32,6 +32,28 @@ export const Layout = () => {
   // 公告弹窗
   const [announcement, setAnnouncement] = useState<any>(null);
 
+  // PWA 安装提示（v37）
+  const [installEvt, setInstallEvt] = useState<any>(null);
+
+  // SW 新版本就绪提示（v37）
+  useEffect(() => {
+    const onUpdate = () => {
+      toast('新版本已就绪', {
+        action: { label: '刷新', onClick: () => window.location.reload() },
+      });
+    };
+    window.addEventListener('xiuixian-sw-update', onUpdate);
+    return () => window.removeEventListener('xiuixian-sw-update', onUpdate);
+  }, []);
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setInstallEvt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
   // 应用图片加载模式（基本设置）
   useEffect(() => {
     store.applyImageMode();
@@ -168,6 +190,35 @@ export const Layout = () => {
       <BottomNav />
 
       {/* 申诉弹窗 */}
+      {/* PWA 安装提示（v37） */}
+      {installEvt && !localStorage.getItem('xiuixian-install-dismissed') && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[55] w-[calc(100%-2rem)] max-w-md">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-3.5 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#0084FF] flex items-center justify-center text-white font-bold shrink-0">知</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-gray-800">安装修仙问答</div>
+              <div className="text-xs text-gray-400 truncate">添加到主屏幕，像 App 一样使用</div>
+            </div>
+            <button
+              onClick={async () => {
+                try { installEvt.prompt(); } catch { /* ignore */ }
+                setInstallEvt(null);
+              }}
+              className="shrink-0 h-8 px-3.5 rounded-full bg-[#0084FF] text-white text-xs font-medium hover:bg-[#0066CC] transition-colors"
+            >
+              安装
+            </button>
+            <button
+              onClick={() => { localStorage.setItem('xiuixian-install-dismissed', '1'); setInstallEvt(null); }}
+              className="shrink-0 text-gray-300 hover:text-gray-500 text-lg leading-none"
+              aria-label="关闭"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       <Dialog open={appealOpen} onOpenChange={setAppealOpen}>
         <DialogContent>
           <DialogHeader>

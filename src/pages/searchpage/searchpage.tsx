@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X, History, ArrowLeft, School, Users, GraduationCap, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ import { REALM_LABELS } from '@/utils/format';
 import QuestionCard from '@/components/QuestionCard';
 import Avatar from '@/components/Avatar';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { useSearchParams } from 'react-router-dom';
 
 export default function SearchPage() {
   usePageTitle('搜索');
@@ -20,6 +21,19 @@ export default function SearchPage() {
   const [userResults, setUserResults] = useState<any[]>([]);
   const [uniResults, setUniResults] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [searchParams] = useSearchParams();
+
+  // v37：支持 /search?q= 直达搜索（404 页等入口跳转）
+  const initKeyword = searchParams.get('q') || '';
+  const [paramInited, setParamInited] = useState(false);
+  useEffect(() => {
+    if (initKeyword && !paramInited) {
+      setParamInited(true);
+      setKeyword(initKeyword);
+      setTimeout(() => doSearch(initKeyword), 100);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const searchHistory = store.getSearchHistory();
   const questions = store.getQuestions();

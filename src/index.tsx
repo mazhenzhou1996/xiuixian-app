@@ -64,7 +64,18 @@ if (typeof window !== "undefined") {
 // 二次访问≈0 网络请求，显著降低 Edge/CDN 与 Supabase 的负担，提升 SEO 爬虫抓取速度。
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register(`${BASENAME === "/" ? "" : BASENAME}/sw.js`).catch(() => {});
+    navigator.serviceWorker.register(`${BASENAME === "/" ? "" : BASENAME}/sw.js`).then((reg) => {
+      // v37：新版本就绪提示（SW 更新）
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            window.dispatchEvent(new CustomEvent('xiuixian-sw-update'));
+          }
+        });
+      });
+    }).catch(() => {});
   });
 }
 
