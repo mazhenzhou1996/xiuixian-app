@@ -139,7 +139,7 @@ export default function AdminCommunityPage() {
                     b.bounty_type === 'question' ? 'bg-blue-50 text-blue-600'
                     : b.bounty_type === 'item' ? 'bg-amber-50 text-amber-600' : 'bg-purple-50 text-purple-600'
                   }`}>
-                    {b.bounty_type === 'question' ? '问答悬赏' : b.bounty_type === 'item' ? '物品悬赏' : '跑腿服务'}
+                    {b.bounty_type === 'question' ? '问答悬赏' : b.bounty_type === 'item' ? '物品悬赏' : b.bounty_type === 'service' ? '其他悬赏' : '跑腿服务'}
                   </span>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full ${b.status === 'open' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
                     {b.status === 'open' ? '进行中' : b.status}

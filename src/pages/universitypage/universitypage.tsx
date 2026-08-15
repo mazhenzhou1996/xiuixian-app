@@ -26,6 +26,7 @@ import { publicTopic } from '@/lib/adminapi';
 import { api } from '@/lib/api';
 import { ServiceIcon } from '@/lib/iconmap';
 import AdUnlockDialog from '@/components/adunlockdialog';
+import SchoolPickerDialog from '@/components/schoolpickerdialog';
 import ConsultationDialog from '@/components/consultationdialog';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { toast } from 'sonner';
@@ -38,18 +39,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-const SCHOOLS = [
-  { name: '清华大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 前20', address: '北京市海淀区清华园1号' },
-  { name: '北京大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 前20', address: '北京市海淀区颐和园路5号' },
-  { name: '复旦大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 约40', address: '上海市杨浦区邯郸路220号' },
-  { name: '上海交通大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 约50', address: '上海市闵行区东川路800号' },
-  { name: '浙江大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 约50', address: '杭州市西湖区余杭塘路866号' },
-  { name: '南京大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 约130', address: '南京市鼓楼区汉口路22号' },
-  { name: '武汉大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 约200', address: '武汉市武昌区八一路299号' },
-  { name: '华中科技大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 约300', address: '武汉市洪山区珞喻路1037号' },
-  { name: '厦门大学', tags: ['985', '211', '双一流'], qs: 'QS 世界排名 约400', address: '厦门市思明区思明南路422号' },
-  { name: '郑州大学', tags: ['211', '双一流'], qs: 'QS 世界排名 约800', address: '郑州市高新区科学大道100号' },
-];
+
 
 const CONFIGS: Record<string, { title: string; services: { label: string; icon: any }[]; hotLabel: string; payText: string }> = {
   university: {
@@ -131,7 +121,6 @@ export default function UniversityPage() {
     payText: config?.pay_text || localCfg.payText,
     services: services.length > 0 ? services : localCfg.services,
   };
-  const schoolList = universities.length > 0 ? universities : SCHOOLS;
   usePageTitle(cfg.title);
 
   const hotQuestions = useMemo(() => {
@@ -179,9 +168,9 @@ export default function UniversityPage() {
                   <span className="text-base font-bold truncate">{school.name}</span>
                   <button
                     onClick={() => setPickerOpen(true)}
-                    className="shrink-0 text-xs bg-red-500 rounded-full px-2.5 py-1 hover:bg-red-600"
+                    className="shrink-0 text-sm font-semibold bg-red-500 rounded-full px-4 py-1.5 hover:bg-red-600 shadow-md shadow-red-200 active:scale-95 transition-all"
                   >
-                    切换
+                    切换学校
                   </button>
                 </div>
                 <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
@@ -389,44 +378,18 @@ export default function UniversityPage() {
         />
       )}
 
-      {/* 选择学校弹窗 */}
-      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>选择学校</DialogTitle>
-            <DialogDescription>请选择你的学校（必选）</DialogDescription>
-          </DialogHeader>
-          <div className="max-h-72 overflow-y-auto divide-y divide-gray-50">
-            {schoolList.map((s: any) => (
-              <div
-                key={s.name}
-                onClick={() => {
-                  setSchool(s);
-                  store.setSelectedSchool(s);
-                  setPickerOpen(false);
-                }}
-                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg"
-              >
-                <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                  <GraduationCap className="w-4.5 h-4.5 text-blue-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-gray-700 font-medium">{s.name}</div>
-                  <div className="text-xs text-gray-400 mt-0.5">{(s.tags || []).join(' · ') || s.province || ''}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <button
-              onClick={() => setPickerOpen(false)}
-              className="h-9 px-6 bg-gray-100 text-gray-600 text-sm font-medium rounded-full"
-            >
-              取消
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* 选择学校弹窗（v30：省份筛选 + 搜索） */}
+      <SchoolPickerDialog
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        selectedId={school?.id}
+        title="选择学校"
+        description="按省份筛选或直接搜索学校名称"
+        onSelect={(s) => {
+          setSchool(s);
+          store.setSelectedSchool(s);
+        }}
+      />
 
       {/* 付费咨询弹窗 */}
       <Dialog open={payOpen} onOpenChange={setPayOpen}>

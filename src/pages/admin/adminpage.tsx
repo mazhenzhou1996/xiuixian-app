@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Shield, Flag, School, FileText, History, LogOut,
-  LayoutDashboard, Users, Megaphone, ChevronLeft, Menu, Coins, EyeOff, Ticket, BadgeCheck, Crown, PackageSearch,
+  LayoutDashboard, Users, Megaphone, ChevronLeft, Menu, Coins, EyeOff, Ticket, BadgeCheck, Crown, PackageSearch, Heart,
 } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import { usePageTitle } from '@/hooks/usePageTitle';
@@ -22,8 +22,9 @@ import AdminVerificationsPage from './adminverificationspage';
 import PlatformAdPage from './platformadpage';
 import AdminBeautyPage from './adminbeautypage';
 import AdminCommunityPage from './admincommunitypage';
+import AdminConfessionsPage from './adminconfessionspage';
 
-type Tab = 'dashboard' | 'reports' | 'content' | 'users' | 'universities' | 'announcements' | 'consultations' | 'changes' | 'reviews' | 'invite' | 'verifications' | 'platformad' | 'beauty' | 'community';
+type Tab = 'dashboard' | 'reports' | 'content' | 'users' | 'universities' | 'announcements' | 'consultations' | 'changes' | 'reviews' | 'invite' | 'verifications' | 'platformad' | 'beauty' | 'community' | 'confessions';
 
 export default function AdminPage() {
   usePageTitle('管理后台');
@@ -33,7 +34,7 @@ export default function AdminPage() {
   const currentUser = store.getCurrentUser();
   const urlTab = searchParams.get('tab') as Tab | null;
   const [tabState, setTabState] = useState<Tab>('dashboard');
-  const tab: Tab = urlTab && ['dashboard','reports','content','users','universities','announcements','consultations','changes','reviews','invite','verifications','platformad','beauty','community'].includes(urlTab) ? urlTab : tabState;
+  const tab: Tab = urlTab && ['dashboard','reports','content','users','universities','announcements','consultations','changes','reviews','invite','verifications','platformad','beauty','community','confessions'].includes(urlTab) ? urlTab : tabState;
   const setTab = (t: Tab) => { setTabState(t); setSearchParams({ tab: t }, { replace: true }); };
   const [checked, setChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -104,6 +105,7 @@ export default function AdminPage() {
     { key: 'platformad', label: '广告平台', icon: Megaphone },
     { key: 'beauty', label: '评选管理', icon: Crown },
     { key: 'community', label: '社区管理', icon: PackageSearch },
+    { key: 'confessions', label: '表白管理', icon: Heart },
     { key: 'announcements', label: '运营公告', icon: Megaphone },
     { key: 'consultations', label: '咨询审核', icon: Coins },
     { key: 'changes', label: '变更回滚', icon: History },
@@ -224,6 +226,7 @@ export default function AdminPage() {
           {tab === 'platformad' && <PlatformAdPage />}
           {tab === 'beauty' && <AdminBeautyPage />}
           {tab === 'community' && <AdminCommunityPage />}
+          {tab === 'confessions' && <AdminConfessionsPage />}
           {tab === 'announcements' && <AdminAnnouncementsPage />}
           {tab === 'consultations' && <AdminConsultationsPage />}
           {tab === 'changes' && <AdminChangesPage />}

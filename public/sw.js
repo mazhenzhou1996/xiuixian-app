@@ -4,8 +4,10 @@
 //  2) 导航请求 → 网络优先，失败回退到缓存的 index.html（离线可用、SPA 不白屏）
 //  3) 其他 GET → 网络优先，成功则写入缓存
 // 注意：CACHE 用稳定版本号，避免每次加载换新名导致缓存永不复用、白费流量。
-const CACHE = 'xiuixian-v25';
-const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg'];
+const CACHE = 'xiuixian-v26';
+// 基于 SW 自身 URL 推导部署根路径，兼容根域名与子路径（GitHub Pages）
+const BASE = self.location.pathname.replace(/\/sw\.js$/, '');
+const APP_SHELL = [BASE + '/', BASE + '/index.html', BASE + '/manifest.webmanifest', BASE + '/favicon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(APP_SHELL).catch(() => {})));
@@ -30,7 +32,7 @@ self.addEventListener('fetch', (e) => {
   // 导航请求：网络优先，失败回退 index.html（SPA fallback）
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req).catch(() => caches.match('/index.html').then((r) => r || fetch(req)))
+      fetch(req).catch(() => caches.match(BASE + '/index.html').then((r) => r || fetch(req)))
     );
     return;
   }

@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wallet, Coins, TrendingUp, TrendingDown, Loader2, Save, Flag, Trophy, CalendarCheck } from 'lucide-react';
+import { Wallet, Coins, TrendingUp, TrendingDown, Loader2, Flag, Trophy, CalendarCheck } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import { api } from '@/lib/api';
-import { getCurrentUserId } from '@/lib/supabase';
 import { formatTime } from '@/utils/format';
 import { toast } from 'sonner';
 import { usePageTitle } from '@/hooks/usePageTitle';
@@ -25,10 +24,7 @@ export default function ConsultationCenterPage() {
   const [wallet, setWallet] = useState<any>(null);
   const [list, setList] = useState<any[]>([]);
   const [tab, setTab] = useState<'mine' | 'theirs'>('mine');
-  const [price, setPrice] = useState(0);
-  const [enabled, setEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [replyId, setReplyId] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
   const [reportC, setReportC] = useState<any | null>(null);
@@ -38,7 +34,6 @@ export default function ConsultationCenterPage() {
   const [checkin, setCheckin] = useState<any>(null);
   const [checking, setChecking] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
-  const [logsOpen, setLogsOpen] = useState(false);
 
   const loadCheckin = async () => {
     try {
@@ -66,15 +61,9 @@ export default function ConsultationCenterPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const uid = await getCurrentUserId();
       const [w, cons] = await Promise.all([api.getMyWallet(), api.listMyConsultations()]);
       setWallet(w);
       setList(cons);
-      if (uid) {
-        const s = await api.getConsultationSetting(uid);
-        setPrice(s?.price || 0);
-        setEnabled(s?.enabled !== false);
-      }
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -83,18 +72,6 @@ export default function ConsultationCenterPage() {
   };
 
   useEffect(() => { load(); }, []);
-
-  const saveSetting = async () => {
-    setSaving(true);
-    try {
-      await api.saveConsultationSetting(price, enabled);
-      toast.success('咨询设置已保存');
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const answer = async (c: any) => {
     if (replyText.trim().length < 2) { toast.error('回复内容太短'); return; }
@@ -158,11 +135,39 @@ export default function ConsultationCenterPage() {
               </span>
               <span>发起 {wallet.consult_count ?? 0} 次 · 回复 {wallet.answered_count ?? 0} 次</span>
             </div>
-            <div className="text-[10px] text-amber-100 mt-2.5">
-              余额充值：联系管理员在后台为用户充值（在线支付后续版本开放）
-            </div>
+            <button
+              onClick={() => toast.info('在线支付即将开放，当前请联系管理员在后台充值（见「我的 → 联系客服」）')}
+              className="mt-3 w-full h-10 rounded-xl bg-white text-amber-600 text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all"
+            >
+              <Coins className="w-4 h-4" /> 账户充值
+            </button>
           </div>
         )}
+
+        {/* 收支详情（余额流水） */}
+        <div className="bg-white rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+              <TrendingUp className="w-4 h-4 text-emerald-500" /> 收支详情
+            </div>
+            <span className="text-[11px] text-gray-400">账户余额变动记录</span>
+          </div>
+          {logs.length === 0 ? (
+            <div className="text-xs text-gray-400 text-center py-3">暂无收支记录</div>
+          ) : (
+            <div className="rounded-xl bg-gray-50 p-3 max-h-64 overflow-y-auto space-y-2">
+              {logs.map((l, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs">
+                  <span className={`font-bold w-12 shrink-0 ${l.delta >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    {l.delta >= 0 ? '+' : ''}{l.delta}
+                  </span>
+                  <span className="text-gray-600 flex-1 truncate">{l.reason}</span>
+                  <span className="text-gray-400 shrink-0">{formatTime(new Date(l.created_at).getTime())}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* 签到卡片 */}
         <div className="bg-white rounded-2xl p-4">
@@ -185,57 +190,10 @@ export default function ConsultationCenterPage() {
               {checking ? <Loader2 className="w-4 h-4 animate-spin" /> : checkin?.checked_today ? '今日已签' : '签到领赏金'}
             </button>
           </div>
-          <button onClick={() => setLogsOpen(!logsOpen)} className="text-[11px] text-gray-400">
-            余额流水 {logsOpen ? '收起 ▲' : '展开 ▼'}
+          <button onClick={() => navigate('/my/earnings')} className="text-[11px] text-gray-400">
+            我的咨询定价 / 收益 →
           </button>
-          {logsOpen && (
-            <div className="mt-2 rounded-xl bg-gray-50 p-3 max-h-52 overflow-y-auto space-y-1.5">
-              {logs.length === 0 && <div className="text-xs text-gray-400 text-center py-2">暂无流水</div>}
-              {logs.map((l, i) => (
-                <div key={i} className="flex items-center gap-2 text-xs">
-                  <span className={`font-bold w-10 shrink-0 ${l.delta >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {l.delta >= 0 ? '+' : ''}{l.delta}
-                  </span>
-                  <span className="text-gray-600 flex-1 truncate">{l.reason}</span>
-                  <span className="text-gray-400 shrink-0">{formatTime(new Date(l.created_at).getTime())}</span>
-                </div>
-              ))}
-            </div>
-          )}
           <div className="text-[10px] text-gray-400 mt-2">赏金账户封顶 ¥100（签到与发放受限，咨询收入不受限）</div>
-        </div>
-
-        {/* 答主设置 */}
-        <div className="bg-white rounded-2xl p-4">
-          <div className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-1.5">
-            <Coins className="w-4 h-4 text-amber-500" /> 我的咨询定价
-          </div>
-          <div className="flex items-center gap-2 mb-2.5">
-            <span className="text-sm text-gray-600 shrink-0">单次咨询价格</span>
-            <div className="flex items-center flex-1">
-              <span className="text-lg font-bold text-amber-600">¥</span>
-              <input
-                type="number"
-                min={0}
-                max={9999}
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                className="flex-1 h-10 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-amber-300 mx-2"
-              />
-              <span className="text-xs text-gray-400 shrink-0">元/次</span>
-            </div>
-          </div>
-          <label className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-            <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="w-4 h-4" />
-            开通付费咨询（价格为 0 视为未开通）
-          </label>
-          <button
-            onClick={saveSetting}
-            disabled={saving}
-            className="w-full h-10 rounded-xl bg-amber-500 text-white text-sm font-medium disabled:opacity-40 flex items-center justify-center gap-1"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 保存设置
-          </button>
         </div>
 
         {/* 订单列表 */}

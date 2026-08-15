@@ -53,7 +53,7 @@ export default function LoginPage() {
 
       {/* Logo area */}
       <div className="pt-8 pb-10 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#0084FF] flex items-center justify-center shadow-lg shadow-[#0084FF]/30">
           <span className="text-white text-2xl font-bold">知</span>
         </div>
         <h1 className="text-2xl font-bold text-gray-900">修仙问答</h1>
@@ -70,7 +70,7 @@ export default function LoginPage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="请输入手机号或账号"
-              className="w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+              className="w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-[#0084FF] focus:ring-2 focus:ring-[#0084FF]/15 outline-none transition-all"
             />
           </div>
 
@@ -82,7 +82,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="请输入密码"
-                className="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                className="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-[#0084FF] focus:ring-2 focus:ring-[#0084FF]/15 outline-none transition-all"
               />
               <button
                 type="button"
@@ -95,7 +95,7 @@ export default function LoginPage() {
           </div>
 
           <div className="text-right">
-            <button type="button" className="text-xs text-blue-600">
+            <button type="button" className="text-xs text-[#0084FF]">
               忘记密码？
             </button>
           </div>
@@ -103,7 +103,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 bg-blue-600 text-white font-medium rounded-xl shadow-md shadow-blue-500/20 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-60"
+            className="w-full h-12 bg-[#0084FF] text-white font-medium rounded-xl shadow-md shadow-[#0084FF]/20 hover:bg-[#0066CC] active:scale-[0.98] transition-all disabled:opacity-60"
           >
             {loading ? '登录中...' : '登 录'}
           </button>
@@ -111,7 +111,7 @@ export default function LoginPage() {
 
         <div className="text-center mt-6 text-sm text-gray-500">
           还没有账号？
-          <Link to="/register" className="text-blue-600 font-medium ml-1">
+          <Link to="/register" className="text-[#0084FF] font-medium ml-1">
             去注册
           </Link>
         </div>

@@ -1,5 +1,5 @@
-﻿import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+﻿import { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { Layout } from '@/components/Layout';
 import { Spinner } from '@/components/ui/spinner';
@@ -52,6 +52,17 @@ const MyEarningsPage = lazy(() => import('@/pages/myearningspage/myearningspage'
 const SchoolCirclePage = lazy(() => import('@/pages/schoolcirclepage/schoolcirclepage'));
 const NotificationsPage = lazy(() => import('@/pages/notificationspage/notificationspage'));
 
+// 路由切换时回到页面顶部（避免新页面停留在上次滚动位置）
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname]);
+  return null;
+}
+
 function PageFallback() {
   return (
     <div className="min-h-[60vh] flex items-center justify-center bg-gray-50">
@@ -63,6 +74,7 @@ function PageFallback() {
 export default function App() {
   return (
     <>
+      <ScrollToTop />
       <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route element={<Layout />}>

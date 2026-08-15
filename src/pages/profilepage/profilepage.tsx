@@ -200,6 +200,17 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* 账户充值（醒目 CTA，跳转付费功能） */}
+      <div className="px-4">
+        <button
+          onClick={() => navigate('/consult-center')}
+          className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold shadow-md shadow-orange-200 flex items-center justify-center gap-2 hover:from-amber-600 hover:to-orange-600 active:scale-[0.98] transition-all"
+        >
+          <Coins className="w-4 h-4" />
+          账户充值
+        </button>
+      </div>
+
       {/* 声望晋级卡片 */}
       <div className="px-4 py-3">
         <div className="bg-white rounded-xl p-4">

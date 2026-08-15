@@ -766,6 +766,80 @@ export const adminApi = {
     if (error) throw new Error(error.message);
     return { ok: true };
   },
+
+  // ---- 表白墙管理（v31） ----
+  async adminListConfessions(status?: string) {
+    await getAdminId();
+    let q = supabase
+      .from('confessions')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(300);
+    if (status && status !== 'all') q = q.eq('status', status);
+    const { data, error } = await q;
+    if (error) throw new Error(error.message);
+    return (data || []).map((c: any) => ({
+      id: c.id,
+      userId: c.user_id,
+      toName: c.to_name || '',
+      content: c.content || '',
+      isAnonymous: !!c.is_anonymous,
+      image: c.image || '',
+      schoolId: c.school_id,
+      amount: c.amount ?? 1,
+      likeCount: c.like_count || 0,
+      featured: !!c.featured,
+      pinned: !!c.pinned,
+      status: c.status || 'active',
+      storyUpdate: c.story_update || '',
+      confirmedAt: c.confirmed_at || null,
+      acceptedAt: c.accepted_at || null,
+      posterConfirmedAt: c.poster_confirmed_at || null,
+      createdAt: c.created_at,
+    }));
+  },
+
+  async adminDeleteConfession(id: number) {
+    await getAdminId();
+    const { data, error } = await supabase.rpc('admin_delete_confession', { p_id: id });
+    if (error) throw new Error(error.message);
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return data;
+  },
+
+  async adminPinConfession(id: number, days = 1) {
+    await getAdminId();
+    const { data, error } = await supabase.rpc('admin_pin_confession', { p_id: id, p_days: days });
+    if (error) throw new Error(error.message);
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return data;
+  },
+
+  async adminFeatureConfession(id: number, days = 1) {
+    await getAdminId();
+    const { data, error } = await supabase.rpc('admin_feature_confession', { p_id: id, p_days: days });
+    if (error) throw new Error(error.message);
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return data;
+  },
+
+  async adminRejectConfession(id: number) {
+    await getAdminId();
+    const { data, error } = await supabase.rpc('admin_reject_confession', { p_id: id });
+    if (error) throw new Error(error.message);
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return data;
+  },
+
+  async adminUpdateConfession(id: number, content: string, toName: string) {
+    await getAdminId();
+    const { data, error } = await supabase.rpc('admin_update_confession', {
+      p_id: id, p_content: content, p_to_name: toName,
+    });
+    if (error) throw new Error(error.message);
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return data;
+  },
 };
 
 

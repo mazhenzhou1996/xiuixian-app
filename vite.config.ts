@@ -53,7 +53,7 @@ export default defineConfig({
   ],
   // SEO 优化：使用绝对路径 base，配合 BrowserRouter 产出干净 URL（/question/123）
   // 部署需开启 SPA fallback（所有未命中静态文件回退到 index.html）
-  base: '/',
+  base: './', // 相对路径：兼容 GitHub Pages 子路径部署（xiuixian-app/）
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

@@ -1,0 +1,45 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:      # 手动触发：Actions 页面点「Run workflow」
+  push:
+    branches: [main, master]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+
+      - name: 前端构建
+        run: npm run build
+
+      - name: 同步 Capacitor
+        run: npx cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: 配置 Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 构建 APK（Debug 签名，可直接安装）
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: 上传 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: xiuixian-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30

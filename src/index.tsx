@@ -1,6 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+
+// 部署子路径支持：GitHub Pages 等子路径托管（如 /xiuixian-app/）需要 basename。
+// 默认 "/"（根域名部署）；子路径部署在 .env 设置 VITE_BASENAME=/xiuixian-app
+const BASENAME: string = (import.meta.env.VITE_BASENAME as string | undefined) || '/';
 import { ErrorBoundary } from "react-error-boundary";
 import App from "./app";
 import { SeoProvider } from "./components/Seo";
@@ -47,7 +51,7 @@ if (typeof window !== "undefined") {
 // 二次访问≈0 网络请求，显著降低 Edge/CDN 与 Supabase 的负担，提升 SEO 爬虫抓取速度。
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+    navigator.serviceWorker.register(`${BASENAME === "/" ? "" : BASENAME}/sw.js`).catch(() => {});
   });
 }
 
@@ -83,7 +87,7 @@ function CrashFallback({ error }: { error: Error }) {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={BASENAME}>
       <SeoProvider>
         <ErrorBoundary fallbackRender={({ error }) => <CrashFallback error={error as Error} />}>
           <App />

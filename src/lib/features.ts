@@ -42,9 +42,14 @@ export async function resolveLostItem(id: number) {
 }
 
 // ===== 悬赏物品/跑腿 =====
+
+// 平台服务费率：从悬赏金额中抽成的比例（20%，互联网通用平台抽成中位，服务/交易类多在 10%-30%）。真扣成需在远端 Supabase 的 create_item_bounty 内实现，
+// 前端此处仅作透明展示（发布页与悬赏榜都会标出服务费与赏金池）。调整比例只改这一处即可。
+export const PLATFORM_FEE_RATE = 0.20;
+
 export async function createItemBounty(params: {
   title: string; content: string; amount: number;
-  type: 'item' | 'service' | 'todo'; campusId?: number | null; contact?: string;
+  type: 'item' | 'question' | 'service' | 'todo'; campusId?: number | null; contact?: string;
 }) {
   const { data, error } = await supabase.rpc('create_item_bounty', {
     p_title: params.title, p_content: params.content, p_amount: params.amount,
@@ -56,6 +61,13 @@ export async function createItemBounty(params: {
 
 export async function listBountiesV2(type = 'all', limit = 30) {
   const { data, error } = await supabase.rpc('list_bounties_v2', { p_type: type, p_limit: limit });
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
+// ===== 校园活动（v30） =====
+export async function listCampusActivities(schoolId: number, limit = 10) {
+  const { data, error } = await supabase.rpc('list_campus_activities', { p_school_id: schoolId, p_limit: limit });
   if (error) throw new Error(error.message);
   return data || [];
 }
@@ -149,6 +161,80 @@ export async function toggleConfessionLike(id: number) {
   const { data, error } = await supabase.rpc('toggle_confession_like', { p_confession_id: id });
   if (error) throw new Error(error.message);
   return { liked: data };
+}
+
+// ===== 表白墙增强（v31）：发布收费 / 置顶收费 / 个人管理 / 故事后续 / 双方确认 =====
+// 说明：pay_create_confession / pin_confession_paid 等新版 RPC 需先执行 sql/confession_features_v31.sql。
+// 未执行时这里的封装会自动回退到旧逻辑（免费发布、¥2 置顶），保证线上不报错。
+
+// 发布表白（优先付费版，未部署则回退免费版）
+export async function payCreateConfession(params: {
+  content: string; toName?: string; isAnonymous?: boolean; image?: string; schoolId?: number | null; amount?: number;
+}) {
+  try {
+    const { data, error } = await supabase.rpc('pay_create_confession', {
+      p_content: params.content,
+      p_to_name: params.toName || '',
+      p_is_anonymous: params.isAnonymous !== false,
+      p_image: params.image || '',
+      p_school_id: params.schoolId ?? null,
+      p_amount: params.amount ?? 1,
+    });
+    if (error) throw error;
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return data;
+  } catch (e: any) {
+    if (/function .* does not exist|could not find function/i.test(e?.message || '')) {
+      // 回退：未部署付费版时免费发布
+      return createConfession(params);
+    }
+    throw e;
+  }
+}
+
+// 置顶（优先付费版 ¥5/天，未部署则回退旧版 ¥2/天）
+export async function pinConfessionPaid(id: number, days = 1, amount = 5) {
+  try {
+    const { data, error } = await supabase.rpc('pin_confession_paid', { p_id: id, p_days: days, p_amount: amount });
+    if (error) throw error;
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return data;
+  } catch (e: any) {
+    if (/function .* does not exist|could not find function/i.test(e?.message || '')) {
+      return pinConfession(id, days);
+    }
+    throw e;
+  }
+}
+
+export async function deleteMyConfession(id: number) {
+  const { data, error } = await supabase.rpc('delete_my_confession', { p_id: id });
+  if (error) throw new Error(error.message);
+  if (data && (data as any).error) throw new Error((data as any).error);
+  return data;
+}
+
+export async function updateConfessionStory(id: number, text: string) {
+  const { data, error } = await supabase.rpc('update_confession_story', { p_id: id, p_text: text });
+  if (error) throw new Error(error.message);
+  if (data && (data as any).error) throw new Error((data as any).error);
+  return data;
+}
+
+// 表白人确认关系（并上传本方截图）
+export async function confirmConfession(id: number, screenshot = '') {
+  const { data, error } = await supabase.rpc('confirm_confession', { p_id: id, p_screenshot: screenshot });
+  if (error) throw new Error(error.message);
+  if (data && (data as any).error) throw new Error((data as any).error);
+  return data;
+}
+
+// 被表白人接受表白（并上传本方截图）
+export async function acceptConfession(id: number, screenshot = '') {
+  const { data, error } = await supabase.rpc('accept_confession', { p_id: id, p_screenshot: screenshot });
+  if (error) throw new Error(error.message);
+  if (data && (data as any).error) throw new Error((data as any).error);
+  return data;
 }
 
 // ===== 热搜（v28） =====

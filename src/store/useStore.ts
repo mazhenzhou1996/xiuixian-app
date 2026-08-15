@@ -115,13 +115,13 @@ export function useXiuxianStore() {
         }
       }
       try {
-        const qs = await cachedFetch('questions:hot', () => api.getQuestions());
+        const qs = await cachedFetch('questions:hot', () => api.getQuestions(undefined, { limit: 40 }));
         setQuestions(qs.map(normQ));
       } catch {
         // 网络/限流失败时 3 秒后自动重试一次，避免页面误报“不存在”
         setTimeout(async () => {
           try {
-            const qs = await cachedFetch('questions:hot', () => api.getQuestions());
+            const qs = await cachedFetch('questions:hot', () => api.getQuestions(undefined, { limit: 40 }));
             setQuestions(qs.map(normQ));
           } catch { /* ignore */ }
         }, 3000);

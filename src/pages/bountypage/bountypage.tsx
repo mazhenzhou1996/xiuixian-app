@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Trophy, Coins, MessageSquare, Loader2, ThumbsUp, CheckCircle2, Plus, Send, EyeOff, Trash2, BadgeCheck } from 'lucide-react';
+import { Trophy, Coins, MessageSquare, Loader2, ThumbsUp, CheckCircle2, Plus, Send, EyeOff, Trash2, BadgeCheck, School, Globe, RefreshCw } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import Avatar from '@/components/Avatar';
 import { api } from '@/lib/api';
+import { listCampuses } from '@/lib/commerce';
+import { listBountiesV2, PLATFORM_FEE_RATE } from '@/lib/features';
 import { supabase } from '@/lib/supabase';
 import { useXiuxianStore } from '@/store/useStore';
 import { formatTime, REALM_LABELS } from '@/utils/format';
@@ -21,6 +23,10 @@ export default function BountyPage() {
   const [list, setList] = useState<any[]>([]);
   // v25：类型 tab（问答/物品/服务）
   const [bountyType, setBountyType] = useState('all');
+  // v30：范围切换（全网/本校）+ 本校校区
+  const [scope, setScope] = useState<'all' | 'school'>('all');
+  const [myCampusId, setMyCampusId] = useState<number | null>(null);
+  const [campusLoading, setCampusLoading] = useState(false);
   // v18：发布者学校认证标识映射
   const [verifiedMap, setVerifiedMap] = useState<Record<string, { verified: boolean; school: string }>>({});
   // 详情
@@ -31,6 +37,19 @@ export default function BountyPage() {
   const [addAmount, setAddAmount] = useState(10);
   const [busy, setBusy] = useState(false);
 
+  // v30：当前用户所选学校 → 校区映射（本校悬赏用）
+  useEffect(() => {
+    if (id) return;
+    const selected = store.getSelectedSchool();
+    if (!selected) { setMyCampusId(null); return; }
+    setCampusLoading(true);
+    listCampuses().then((list: any[]) => {
+      const campus = (list || []).find((x: any) => Number(x.university_id) === Number(selected.id));
+      setMyCampusId(campus ? campus.id : null);
+    }).catch(() => setMyCampusId(null)).finally(() => setCampusLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, scope === 'school' ? 'school' : 'all', store]);
+
   useEffect(() => {
     (async () => {
       if (id) {
@@ -38,12 +57,15 @@ export default function BountyPage() {
       } else {
         try {
           let rows;
-          if (bountyType === 'all') {
+          if (bountyType === 'all' && scope !== 'school') {
             rows = await api.listBounties();
           } else {
-            // 物品/服务类型走 v2 RPC（迁移未执行时降级为空列表）
-            const { listBountiesV2 } = await import('@/lib/features');
-            rows = await listBountiesV2(bountyType, 30);
+            // 物品/服务/待办/提问类型走 v2 RPC（含 campus_id，本校过滤必需）
+            rows = await listBountiesV2(bountyType === 'all' ? 'all' : bountyType, 60);
+          }
+          // v30：本校悬赏 → 按当前学校对应校区过滤
+          if (scope === 'school' && myCampusId) {
+            rows = (rows || []).filter((b: any) => Number(b.campus_id) === Number(myCampusId));
           }
           setList(rows);
           // v18：加载发布者认证标识（公开视图）
@@ -128,26 +150,64 @@ export default function BountyPage() {
       <div className="min-h-screen bg-gray-50 pb-4">
         <PageHeader title="悬赏榜" />
         <div className="px-4 py-3 space-y-3">
-          {/* v25：类型 tab */}
+          {/* v30：范围切换 全网/本校 */}
+          {!id && (
+            <div className="bg-white rounded-2xl p-1 flex shadow-sm">
+              <button
+                onClick={() => setScope('all')}
+                className={`flex-1 h-9 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${scope === 'all' ? 'bg-red-600 text-white shadow-sm' : 'text-gray-500'}`}
+              >
+                <Globe className="w-4 h-4" /> 全网悬赏
+              </button>
+              <button
+                onClick={() => {
+                  const selected = store.getSelectedSchool();
+                  if (!selected) {
+                    toast.info('请先选择学校');
+                    navigate('/topic/university');
+                    return;
+                  }
+                  setScope('school');
+                }}
+                className={`flex-1 h-9 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${scope === 'school' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500'}`}
+              >
+                <School className="w-4 h-4" />
+                {scope === 'school' && store.getSelectedSchool()
+                  ? `本校悬赏（${String(store.getSelectedSchool().name).slice(0, 6)}）`
+                  : '本校悬赏'}
+              </button>
+            </div>
+          )}
+          {scope === 'school' && campusLoading && (
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" /> 正在定位本校校区...
+            </div>
+          )}
+          {scope === 'school' && !campusLoading && !myCampusId && !id && (
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 text-xs text-amber-700">
+              暂未匹配到「{store.getSelectedSchool()?.name || '当前学校'}」的校区，本校悬赏暂不可用，可先浏览全网悬赏。
+            </div>
+          )}
+          {/* v30：分类 tab（寻物/提问/代办跑腿） */}
           {!id && (
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {[['all', '全部'], ['question', '问答'], ['item', '物品'], ['service', '跑腿服务'], ['todo', '待办']].map(([k, label]) => (
+              {[['all', '全部'], ['item', '寻物'], ['question', '提问'], ['todo', '代办跑腿'], ['service', '其他']].map(([k, label]) => (
                 <button
                   key={k}
                   onClick={() => setBountyType(k)}
-                  className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${bountyType === k ? 'bg-violet-600 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}
+                  className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${bountyType === k ? 'bg-red-600 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}
                 >
                   {label}
                 </button>
               ))}
             </div>
           )}
-          <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-4 text-white">
+          <div className="bg-gradient-to-r from-red-600 to-rose-600 rounded-2xl p-4 text-white">
             <div className="text-base font-bold flex items-center gap-1.5">
               <Trophy className="w-5 h-5" /> 悬赏榜
             </div>
-            <div className="text-xs text-violet-100 mt-1">
-              自由接取悬赏任务，最佳答案获 70% 赏金，其余回复按点赞分红
+            <div className="text-xs text-rose-100 mt-1">
+              悬赏含 {Math.round(PLATFORM_FEE_RATE * 100)}% 平台服务费，认可后最佳答案获 70% · 其余 30% 按点赞分红
             </div>
           </div>
           {loading ? (
@@ -181,7 +241,9 @@ export default function BountyPage() {
                       </span>
                     )}
                   </span>
-                  <span className="ml-auto px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-100">进行中</span>
+                  <span className={`ml-auto px-2 py-0.5 rounded-full border ${b.bounty_type === 'item' ? 'bg-amber-50 text-amber-600 border-amber-100' : b.bounty_type === 'question' ? 'bg-blue-50 text-blue-600 border-blue-100' : b.bounty_type === 'todo' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                    {b.bounty_type === 'item' ? '寻物' : b.bounty_type === 'question' ? '提问' : b.bounty_type === 'todo' ? '代办跑腿' : b.bounty_type === 'service' ? '其他' : '悬赏'}
+                  </span>
                 </div>
               </div>
             ))
@@ -209,7 +271,7 @@ export default function BountyPage() {
 
       <div className="px-4 py-3 space-y-3">
         {/* 悬赏信息 */}
-        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-5 text-white">
+        <div className="bg-gradient-to-r from-red-600 to-rose-600 rounded-2xl p-5 text-white">
           <div className="flex items-center gap-2 mb-1.5">
             <Trophy className="w-4 h-4" />
             <span className="text-sm font-semibold">{bounty.ownerName} 的悬赏</span>
@@ -218,10 +280,13 @@ export default function BountyPage() {
             </span>
           </div>
           <div className="text-lg font-bold mb-1">{bounty.title}</div>
-          <div className="text-xs text-violet-100 whitespace-pre-line">{bounty.content}</div>
+          <div className="text-xs text-rose-100 whitespace-pre-line">{bounty.content}</div>
           <div className="mt-3 flex items-center gap-4 text-sm">
             <span className="text-xl font-bold">¥{bounty.totalAmount}</span>
-            <span className="text-[11px] text-violet-100">悬赏总额 · 认可后最佳答案 70% · 其余按点赞分红 30%</span>
+            <span className="text-[11px] text-rose-100">悬赏总额（含 {Math.round(PLATFORM_FEE_RATE * 100)}% 平台服务费）· 认可后最佳答案 70% · 其余 30% 分红</span>
+          </div>
+          <div className="text-[11px] text-rose-100/90">
+            平台服务费 ¥{Math.round(bounty.totalAmount * PLATFORM_FEE_RATE * 100) / 100} · 赏金池 ¥{Math.round(bounty.totalAmount * (1 - PLATFORM_FEE_RATE) * 100) / 100}
           </div>
           {bounty.status === 'open' && (
             <div className="mt-3 flex items-center gap-2">
@@ -235,7 +300,7 @@ export default function BountyPage() {
               <button
                 onClick={addMoney}
                 disabled={busy}
-                className="h-8 px-3 rounded-full bg-white text-violet-700 text-xs font-bold disabled:opacity-40 flex items-center gap-1"
+                className="h-8 px-3 rounded-full bg-white text-red-700 text-xs font-bold disabled:opacity-40 flex items-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5" /> 追加悬赏金
               </button>
@@ -313,7 +378,7 @@ export default function BountyPage() {
                     <button
                       onClick={() => acceptAnswer(a.id)}
                       disabled={busy}
-                      className="flex items-center gap-1 h-7 px-3 rounded-full bg-violet-600 text-white text-[11px] font-medium disabled:opacity-40"
+                      className="flex items-center gap-1 h-7 px-3 rounded-full bg-red-600 text-white text-[11px] font-medium disabled:opacity-40"
                     >
                       <CheckCircle2 className="w-3 h-3" /> 认可为最佳答案
                     </button>
@@ -329,7 +394,7 @@ export default function BountyPage() {
           <div className="bg-white rounded-2xl p-4">
             <div className="text-sm font-semibold text-gray-800 mb-2.5">接取任务 · 提交回复</div>
             <textarea
-              className="w-full h-24 rounded-xl border border-gray-200 p-3 text-sm outline-none focus:border-violet-300"
+              className="w-full h-24 rounded-xl border border-gray-200 p-3 text-sm outline-none focus:border-red-300"
               placeholder="你的解答（至少 5 个字），被认可可获 70% 赏金，被点赞可参与分红..."
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
@@ -337,7 +402,7 @@ export default function BountyPage() {
             <button
               onClick={submitAnswer}
               disabled={busy}
-              className="mt-2 w-full h-10 rounded-xl bg-violet-600 text-white text-sm font-medium disabled:opacity-40 flex items-center justify-center gap-1"
+              className="mt-2 w-full h-10 rounded-xl bg-red-600 text-white text-sm font-medium disabled:opacity-40 flex items-center justify-center gap-1"
             >
               {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} 提交回复
             </button>

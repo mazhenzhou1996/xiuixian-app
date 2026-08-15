@@ -16,12 +16,13 @@ const TYPE_FILTERS = [
   { key: 'question', label: '问题' },
   { key: 'answer', label: '回答' },
   { key: 'comment', label: '评论' },
+  { key: 'confession', label: '表白' },
   { key: 'message', label: '私信' },
   { key: 'user', label: '用户' },
 ];
 
 const TYPE_LABEL: Record<string, string> = {
-  question: '问题', answer: '回答', comment: '评论', user: '用户', message: '私信',
+  question: '问题', answer: '回答', comment: '评论', confession: '表白', user: '用户', message: '私信',
 };
 
 export default function AdminReportsPage() {
@@ -47,16 +48,20 @@ export default function AdminReportsPage() {
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [statusFilter, typeFilter]);
 
   const handleHide = async (r: any) => {
-    if (!['question', 'answer', 'comment'].includes(r.targetType)) {
+    if (!['question', 'answer', 'comment', 'confession'].includes(r.targetType)) {
       toast.info('该类型不支持直接下架');
       return;
     }
     setBusyId(r.id);
     try {
-      await adminApi.setContentStatus(r.targetType as any, r.targetId, 'hidden');
+      if (r.targetType === 'confession') {
+        await adminApi.adminDeleteConfession(Number(r.targetId));
+      } else {
+        await adminApi.setContentStatus(r.targetType as any, r.targetId, 'hidden');
+      }
       await adminApi.setReportStatus(r.id, 'resolved');
       // 量化系统：确认违规下架扣 5 分
-      if (r.targetUserId) {
+      if (r.targetUserId && r.targetType !== 'confession') {
         try {
           const res = await adminApi.deductCredit(r.targetUserId, -5, `内容被确认违规下架（${r.targetType} #${r.targetId}）`);
           if (res?.action && res.action !== 'none') {
@@ -75,17 +80,21 @@ export default function AdminReportsPage() {
   };
 
   const handleDelete = async (r: any) => {
-    if (!['question', 'answer', 'comment'].includes(r.targetType)) {
+    if (!['question', 'answer', 'comment', 'confession'].includes(r.targetType)) {
       toast.info('私信/用户举报请人工处理');
       return;
     }
-    if (!window.confirm(`确认删除该${TYPE_LABEL[r.targetType]}（ID ${r.targetId}）？将级联删除其点赞/收藏/评论，不可恢复。`)) return;
+    if (!window.confirm(`确认删除该${TYPE_LABEL[r.targetType]}（ID ${r.targetId}）？将不可恢复。`)) return;
     setBusyId(r.id);
     try {
-      await adminApi.adminDeleteContent(r.targetType as any, r.targetId);
+      if (r.targetType === 'confession') {
+        await adminApi.adminDeleteConfession(Number(r.targetId));
+      } else {
+        await adminApi.adminDeleteContent(r.targetType as any, r.targetId);
+      }
       await adminApi.setReportStatus(r.id, 'resolved');
       // 量化系统：内容被删除扣 10 分
-      if (r.targetUserId) {
+      if (r.targetUserId && r.targetType !== 'confession') {
         try {
           const res = await adminApi.deductCredit(r.targetUserId, -10, `内容被管理员删除（${r.targetType} #${r.targetId}）`);
           if (res?.action && res.action !== 'none') {

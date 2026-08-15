@@ -142,9 +142,9 @@ export default function GraduatePage() {
                   <span className="text-base font-bold truncate">{school.name}</span>
                   <button
                     onClick={() => setPickerOpen(true)}
-                    className="shrink-0 text-xs bg-red-500 rounded-full px-2.5 py-1 hover:bg-red-600"
+                    className="shrink-0 text-sm font-semibold bg-red-500 rounded-full px-4 py-1.5 hover:bg-red-600 shadow-md shadow-red-200 active:scale-95 transition-all"
                   >
-                    切换
+                    切换学校
                   </button>
                 </div>
                 <div className="flex items-center gap-1.5 flex-wrap mb-1.5">

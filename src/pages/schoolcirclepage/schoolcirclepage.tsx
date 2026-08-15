@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { School, Trophy, ChevronRight, BadgeCheck, ShieldCheck, Users, Loader2, Store, Megaphone, Heart, PackageSearch, Crown, LayoutGrid, ChevronDown } from 'lucide-react';
+import { School, Trophy, ChevronRight, BadgeCheck, ShieldCheck, Users, Loader2, Store, Megaphone, Heart, PackageSearch, Crown, LayoutGrid, ChevronDown, CalendarDays, MapPin, RefreshCw } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import { useXiuxianStore } from '@/store/useStore';
 import { api } from '@/lib/api';
 import { listAdBoards, listCampuses, listMerchantsByCampus, applyMerchant, getMyMerchant, buyBoardSlot, getConfig } from '@/lib/commerce';
 import { publicTopic } from '@/lib/adminapi';
-import { listConfessions, listLostItems, listBeautyActivities } from '@/lib/features';
+import { listConfessions, listLostItems, listBeautyActivities, listCampusActivities } from '@/lib/features';
 import { ServiceIcon } from '@/lib/iconmap';
 import AdBoard from '@/components/adboard';
 import Avatar from '@/components/Avatar';
+import SchoolPickerDialog from '@/components/schoolpickerdialog';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { toast } from 'sonner';
 import {
@@ -48,6 +49,9 @@ export default function SchoolCirclePage() {
   const [gridExpanded, setGridExpanded] = useState(false);
   // v28b：本校悬赏
   const [campusBounties, setCampusBounties] = useState<any[]>([]);
+  // v30：校园活动 + 切换学校
+  const [activities, setActivities] = useState<any[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   usePageTitle(school ? `${school.name} · 本校圈子` : '学校圈子');
 
@@ -80,6 +84,8 @@ export default function SchoolCirclePage() {
       const a = (list || []).find((x: any) => x.scope === 'campus' && x.status === 'active');
       if (a) setCampusBeauty(a);
     }).catch(() => {});
+    // v30：校园活动
+    listCampusActivities(Number(id), 10).then(setActivities).catch(() => {});
     publicTopic.getServices('university').then((list: any[]) => setServices(list || [])).catch(() => {});
     // v28b：本校悬赏（按校区过滤）
     listCampuses().then((list: any[]) => {
@@ -184,8 +190,17 @@ export default function SchoolCirclePage() {
       {/* 学校信息卡 */}
       <div className="bg-gradient-to-br from-emerald-600 to-teal-500 px-4 py-6 text-white">
         <div className="flex items-center gap-2 mb-1">
-          <School className="w-5 h-5" />
-          <h1 className="text-lg font-bold">{school?.name || '学校圈子'}</h1>
+          <School className="w-5 h-5 shrink-0" />
+          <span className="text-[11px] bg-white/25 rounded-full px-2 py-0.5 shrink-0">当前学校</span>
+          <h1 className="text-base font-bold flex-1 min-w-0 truncate">{school?.name || '未选择学校'}</h1>
+          {/* v30：切换学校大按钮（醒目） */}
+          <button
+            onClick={() => setPickerOpen(true)}
+            className="shrink-0 flex items-center gap-1.5 h-10 px-4 rounded-full bg-white text-emerald-700 text-sm font-bold shadow-lg hover:bg-emerald-50 active:scale-95 transition-all"
+          >
+            <RefreshCw className="w-4 h-4" />
+            切换学校
+          </button>
         </div>
         <div className="text-xs text-white/85">
           本校道友的提问与回答 · 本校热门推荐
@@ -194,8 +209,49 @@ export default function SchoolCirclePage() {
           <div className="mt-3 flex gap-2">
             {school.is985 === true && <span className="text-[10px] bg-white/20 rounded-full px-2 py-0.5">985</span>}
             {school.is211 === true && <span className="text-[10px] bg-white/20 rounded-full px-2 py-0.5">211</span>}
+            {(school.province || '') && (
+              <span className="text-[10px] bg-white/20 rounded-full px-2 py-0.5">{school.province}</span>
+            )}
           </div>
         )}
+      </div>
+
+      {/* v30：校园活动 */}
+      <div className="px-4 py-3">
+        <div className="bg-white rounded-2xl border border-blue-100 overflow-hidden">
+          <div className="px-4 py-2.5 flex items-center gap-1.5 text-sm font-semibold text-gray-800 border-b border-gray-50">
+            <CalendarDays className="w-4 h-4 text-blue-500" />
+            校园活动
+          </div>
+          {activities.length === 0 ? (
+            <div className="px-4 py-4 text-center text-xs text-gray-400">
+              本校暂无活动，敬请期待
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {activities.map((a: any) => (
+                <div key={a.id} className="px-4 py-3">
+                  <div className="text-sm font-medium text-gray-800">{a.title}</div>
+                  <p className="text-xs text-gray-500 leading-relaxed mt-0.5 line-clamp-2">{a.description}</p>
+                  <div className="flex items-center gap-3 text-[11px] text-gray-400 mt-1.5">
+                    {a.start_at && (
+                      <span className="flex items-center gap-0.5">
+                        <CalendarDays className="w-3 h-3" />
+                        {new Date(a.start_at).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                    {a.location && (
+                      <span className="flex items-center gap-0.5">
+                        <MapPin className="w-3 h-3" /> {a.location}
+                      </span>
+                    )}
+                    {a.organizer && <span>{a.organizer}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* v28：本校表白墙（常驻，空态可发布） */}
@@ -561,6 +617,19 @@ export default function SchoolCirclePage() {
           </button>
         </div>
       )}
+
+      {/* v30：切换学校弹窗 */}
+      <SchoolPickerDialog
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        selectedId={id ? Number(id) : null}
+        title="切换学校"
+        description="按省份筛选或直接搜索，切换到对应学校圈子"
+        onSelect={(s) => {
+          navigate(`/topic/school/${s.id}`);
+          store.setSelectedSchool(s);
+        }}
+      />
 
       {/* 返回专题入口 */}
       <div className="px-4">

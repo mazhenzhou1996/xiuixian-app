@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { Seo } from '@/components/Seo';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GraduationCap, BookMarked, School, Sparkles, Users, ChevronRight, PackageSearch, Crown, Heart, Flame } from 'lucide-react';
+import { GraduationCap, BookMarked, School, Sparkles, Users, ChevronRight, PackageSearch, Crown, Heart, Flame, Trophy } from 'lucide-react';
 
 const TOPICS = [
   {
@@ -19,9 +19,16 @@ const TOPICS = [
   {
     key: 'graduate',
     title: '研究生专题',
-    desc: '考研择校 · 复试辅导 · 导师选择',
+    desc: '考研择校 · 复试辅导',
     icon: BookMarked,
     gradient: 'from-purple-600 to-violet-500',
+  },
+  {
+    key: 'featured',
+    title: '精选故事',
+    desc: '表白墙精选 · 续写后续',
+    icon: Heart,
+    gradient: 'from-pink-600 to-rose-500',
   },
 ];
 
@@ -108,51 +115,45 @@ export default function HomePage() {
         keywords="高校问答,大学问答,考研,四六级,考公,求职,简历,宿舍,挂科,学长学姐,修仙问答,大学生论坛"
         type="website"
       />
-      {/* 专题入口 + 个性化状态 */}
-      <div className="px-4 mb-3 grid grid-cols-3 gap-2.5">
+      {/* 专题入口（紧凑） */}
+      <div className="px-3 mb-2 grid grid-cols-3 gap-2">
         {TOPICS.map((t) => (
           <div
             key={t.key}
-            onClick={() => navigate(`/topic/${t.key}`)}
-            className={`bg-gradient-to-br ${t.gradient} rounded-xl p-3 text-white relative overflow-hidden cursor-pointer active:scale-[0.97] transition-transform flex flex-col`}
+            onClick={() => navigate(t.key === 'featured' ? '/wall' : `/topic/${t.key}`)}
+            className={`bg-gradient-to-br ${t.gradient} rounded-xl p-2.5 text-white relative overflow-hidden cursor-pointer active:scale-[0.97] transition-transform flex flex-col`}
           >
-            <div className="absolute -right-4 -top-5 w-14 h-14 rounded-full bg-white/10" />
-            <t.icon className="w-6 h-6 mb-1.5 relative z-10" />
-            <div className="text-[13px] font-bold relative z-10">{t.title}</div>
-            <div className="text-[10px] text-white/85 mt-0.5 leading-snug line-clamp-2 h-7 relative z-10">
-              {t.desc}
-            </div>
-            <span className="relative z-10 mt-1.5 inline-flex items-center self-start text-[10px] bg-white/20 rounded-full px-2 py-0.5">
-              查看详情
-            </span>
+            <div className="absolute -right-3 -top-4 w-12 h-12 rounded-full bg-white/10" />
+            <t.icon className="w-5 h-5 mb-1 relative z-10" />
+            <div className="text-[12px] font-bold relative z-10 leading-tight">{t.title}</div>
+            <div className="text-[9px] text-white/85 mt-0.5 leading-snug line-clamp-2 relative z-10">{t.desc}</div>
           </div>
         ))}
-        {/* 我的学校圈子入口 */}
+      </div>
+
+      {/* 我的学校圈子入口（独立整行，去掉“进入圈子”字样） */}
+      <div className="px-3 mb-3">
         {mySchool ? (
           <div
             onClick={() => navigate(`/topic/school/${mySchool.id}`)}
-            className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl p-3 text-white relative overflow-hidden cursor-pointer active:scale-[0.97] transition-transform flex flex-col"
+            className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl px-3.5 py-2.5 text-white relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform flex items-center gap-2"
           >
-            <div className="absolute -right-4 -top-5 w-14 h-14 rounded-full bg-white/10" />
-            <School className="w-6 h-6 mb-1.5 relative z-10" />
-            <div className="text-[13px] font-bold relative z-10 truncate">{mySchool.name}</div>
-            <div className="text-[10px] text-white/85 mt-0.5 leading-snug h-7 relative z-10">本校圈子 · 本校热门</div>
-            <span className="relative z-10 mt-1.5 inline-flex items-center self-start text-[10px] bg-white/20 rounded-full px-2 py-0.5">
-              进入圈子
-            </span>
+            <School className="w-5 h-5 shrink-0" />
+            <div className="min-w-0">
+              <div className="text-[13px] font-bold truncate">{mySchool.name}</div>
+              <div className="text-[10px] text-white/85">本校圈子 · 本校热门</div>
+            </div>
           </div>
         ) : (
           <div
             onClick={() => navigate('/topic/university')}
-            className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl p-3 text-white relative overflow-hidden cursor-pointer active:scale-[0.97] transition-transform flex flex-col"
+            className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-xl px-3.5 py-2.5 text-white relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform flex items-center gap-2"
           >
-            <div className="absolute -right-4 -top-5 w-14 h-14 rounded-full bg-white/10" />
-            <School className="w-6 h-6 mb-1.5 relative z-10" />
-            <div className="text-[13px] font-bold relative z-10">我的学校</div>
-            <div className="text-[10px] text-white/85 mt-0.5 leading-snug h-7 relative z-10">选择学校进入本校圈子</div>
-            <span className="relative z-10 mt-1.5 inline-flex items-center self-start text-[10px] bg-white/20 rounded-full px-2 py-0.5">
-              去选择
-            </span>
+            <School className="w-5 h-5 shrink-0" />
+            <div className="min-w-0">
+              <div className="text-[13px] font-bold">我的学校</div>
+              <div className="text-[10px] text-white/85">选择学校进入本校圈子</div>
+            </div>
           </div>
         )}
       </div>
@@ -185,8 +186,17 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* v25：失物招领 + 评选入口 */}
-      <div className="px-4 mb-3 grid grid-cols-2 gap-2.5">
+      {/* v25：悬赏 + 失物招领 + 评选入口 */}
+      <div className="px-4 mb-3 grid grid-cols-3 gap-2.5">
+        <div
+          onClick={() => navigate('/bounty')}
+          className="bg-gradient-to-br from-red-600 to-rose-600 rounded-xl p-3 text-white relative overflow-hidden cursor-pointer active:scale-[0.97] transition-transform"
+        >
+          <div className="absolute -right-4 -top-5 w-14 h-14 rounded-full bg-white/10" />
+          <Trophy className="w-6 h-6 mb-1.5 relative z-10" />
+          <div className="text-[13px] font-bold relative z-10">悬赏榜</div>
+          <div className="text-[10px] text-white/85 mt-0.5 relative z-10">接取任务 · 赚赏金</div>
+        </div>
         <div
           onClick={() => navigate('/lost')}
           className="bg-gradient-to-br from-teal-500 to-emerald-500 rounded-xl p-3 text-white relative overflow-hidden cursor-pointer active:scale-[0.97] transition-transform"
@@ -194,7 +204,7 @@ export default function HomePage() {
           <div className="absolute -right-4 -top-5 w-14 h-14 rounded-full bg-white/10" />
           <PackageSearch className="w-6 h-6 mb-1.5 relative z-10" />
           <div className="text-[13px] font-bold relative z-10">失物招领</div>
-          <div className="text-[10px] text-white/85 mt-0.5 relative z-10">拾到 · 寻物 · 置顶加急</div>
+          <div className="text-[10px] text-white/85 mt-0.5 relative z-10">拾到 · 寻物</div>
         </div>
         <div
           onClick={() => navigate('/beauty')}
@@ -202,8 +212,8 @@ export default function HomePage() {
         >
           <div className="absolute -right-4 -top-5 w-14 h-14 rounded-full bg-white/10" />
           <Crown className="w-6 h-6 mb-1.5 relative z-10" />
-          <div className="text-[13px] font-bold relative z-10">校花校草评选</div>
-          <div className="text-[10px] text-white/85 mt-0.5 relative z-10">投票 · 报名 · 排行榜</div>
+          <div className="text-[13px] font-bold relative z-10">校花校草</div>
+          <div className="text-[10px] text-white/85 mt-0.5 relative z-10">投票 · 报名</div>
         </div>
       </div>
 
@@ -218,7 +228,7 @@ export default function HomePage() {
             <Heart className="w-7 h-7 fill-current" />
             <div className="flex-1">
               <div className="text-[15px] font-bold">表白墙</div>
-              <div className="text-[11px] text-white/85 mt-0.5">匿名表白 · 置顶加急 ¥2/天 · 精选上墙 ¥5/天</div>
+              <div className="text-[11px] text-white/85 mt-0.5">发布 ¥1 · 置顶加急 ¥5/天 · 精选免费上墙</div>
             </div>
             <span className="text-[11px] bg-white/20 rounded-full px-3 py-1 shrink-0">去表白 →</span>
           </div>
