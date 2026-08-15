@@ -143,7 +143,7 @@ export default function ProfilePage() {
     { label: '联系客服', icon: Headphones, color: 'text-teal-600 bg-teal-50', count: null, onClick: () => setContactOpen(true) },
     { label: '设置', icon: Settings, color: 'text-gray-600 bg-gray-100', count: null, path: '/settings' },
   ];
-  // 关于组（v36）：下载 / 隐私 / 协议 / 版本日志
+  // 关于组（v37）：下载 / 隐私 / 协议 / 版本日志
   const aboutItems = [
     { label: '下载 App', icon: Download, color: 'text-blue-600 bg-blue-50', count: null, path: '/download' },
     { label: '隐私政策', icon: ShieldCheck, color: 'text-blue-600 bg-blue-50', count: null, path: '/privacy' },
@@ -315,7 +315,7 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        {/* 关于（v36） */}
+        {/* 关于（v37） */}
         <div className="bg-white rounded-xl divide-y divide-gray-50 overflow-hidden mt-3">
           {aboutItems.map((item) => (
             <div
@@ -344,9 +344,9 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* 版本信息（v36） */}
+      {/* 版本信息（v38） */}
       <div className="px-4 pt-3 pb-1 text-center text-[10px] text-gray-300">
-        修仙问答 v36 · 2026-08-15
+        修仙问答 v38 · 2026-08-15
       </div>
 
       {/* 联系客服弹窗 */}
