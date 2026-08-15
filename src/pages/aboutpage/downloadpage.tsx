@@ -17,7 +17,7 @@ export default function DownloadPage() {
             <Smartphone className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-lg font-bold text-gray-900">修仙问答 Android 版</h2>
-          <p className="text-xs text-gray-400 mt-1 mb-5">当前版本 v38 · 2026-08-15 · 约 4.8MB</p>
+          <p className="text-xs text-gray-400 mt-1 mb-5">当前版本 v39 · 2026-08-15 · 约 4.8MB</p>
           <a
             href={APK_URL}
             target="_blank"

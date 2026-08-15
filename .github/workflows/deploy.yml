@@ -28,6 +28,7 @@ jobs:
       - name: 构建
         env:
           VITE_BASENAME: /xiuixian-app/
+          VITE_BASE: /xiuixian-app/
         run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

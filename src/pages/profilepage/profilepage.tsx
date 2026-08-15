@@ -346,7 +346,7 @@ export default function ProfilePage() {
 
       {/* 版本信息（v38） */}
       <div className="px-4 pt-3 pb-1 text-center text-[10px] text-gray-300">
-        修仙问答 v38 · 2026-08-15
+        修仙问答 v39 · 2026-08-15
       </div>
 
       {/* 联系客服弹窗 */}

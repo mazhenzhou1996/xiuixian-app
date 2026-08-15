@@ -53,7 +53,9 @@ export default defineConfig({
   ],
   // SEO 优化：使用绝对路径 base，配合 BrowserRouter 产出干净 URL（/question/123）
   // 部署需开启 SPA fallback（所有未命中静态文件回退到 index.html）
-  base: './', // 相对路径：兼容 GitHub Pages 子路径部署（xiuixian-app/）
+  // v39：绝对路径 base（深链接刷新必备——相对路径会让 /question/21 的资源解析到 /question/assets 下 404）。
+  // 生产构建由 CI 注入 VITE_BASE（GitHub Pages 为 /xiuixian-app/）；本地构建默认 / 。
+  base: process.env.VITE_BASE || '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
