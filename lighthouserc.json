@@ -1,0 +1,19 @@
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": "dist/client",
+      "numberOfRuns": 1,
+      "settings": {
+        "onlyCategories": [
+          "performance",
+          "seo",
+          "accessibility",
+          "best-practices"
+        ]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}

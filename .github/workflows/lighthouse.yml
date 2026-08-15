@@ -1,0 +1,30 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    # 跑分失败不阻断主流程（报告为准，告警不打断发布）
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: 安装依赖
+        run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+      - name: 构建
+        run: npm run build
+      - name: 运行 Lighthouse
+        run: npx -y @lhci/cli@0.14.x autorun
+      - name: 上传报告
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci
+          retention-days: 14
