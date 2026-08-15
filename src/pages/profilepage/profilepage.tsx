@@ -204,7 +204,7 @@ export default function ProfilePage() {
       <div className="px-4">
         <button
           onClick={() => navigate('/consult-center')}
-          className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold shadow-md shadow-orange-200 flex items-center justify-center gap-2 hover:from-amber-600 hover:to-orange-600 active:scale-[0.98] transition-all"
+          className="w-full h-12 rounded-xl bg-gradient-to-r from-[#0084FF] to-[#4DA6FF] text-white text-sm font-bold shadow-md shadow-[#0084FF]/30 flex items-center justify-center gap-2 hover:from-[#0066CC] hover:to-[#0084FF] active:scale-[0.98] transition-all"
         >
           <Coins className="w-4 h-4" />
           账户充值

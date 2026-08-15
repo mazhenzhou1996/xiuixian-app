@@ -10,15 +10,15 @@ export default function LoginPage() {
   usePageTitle('登录');
   const navigate = useNavigate();
   const store = useXiuxianStore();
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim()) {
-      toast.error('请输入手机号或账号');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error('请输入正确的邮箱');
       return;
     }
     if (!password) {
@@ -28,7 +28,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      await store.login(phone.trim(), password);
+      await store.login(email.trim(), password);
       toast.success('登录成功');
       navigate('/', { replace: true });
     } catch (err) {
@@ -64,12 +64,12 @@ export default function LoginPage() {
       <div className="flex-1 px-8">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1.5">手机号 / 账号</label>
+            <label className="block text-sm text-gray-600 mb-1.5">邮箱</label>
             <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="请输入手机号或账号"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="请输入邮箱"
               className="w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-[#0084FF] focus:ring-2 focus:ring-[#0084FF]/15 outline-none transition-all"
             />
           </div>
@@ -116,14 +116,6 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        {/* Demo account hint */}
-        <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100">
-          <div className="text-xs text-blue-700 font-medium mb-2">体验账号</div>
-          <div className="text-xs text-blue-600 space-y-1">
-            <div>账号：13800138001 密码：123456（化神境）</div>
-            <div>账号：13800138005 密码：123456（练气境）</div>
-          </div>
-        </div>
       </div>
     </div>
   );

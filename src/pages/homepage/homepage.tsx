@@ -23,13 +23,6 @@ const TOPICS = [
     icon: BookMarked,
     gradient: 'from-purple-600 to-violet-500',
   },
-  {
-    key: 'featured',
-    title: '精选故事',
-    desc: '表白墙精选 · 续写后续',
-    icon: Heart,
-    gradient: 'from-pink-600 to-rose-500',
-  },
 ];
 
 function HomeSkeleton() {
@@ -116,11 +109,11 @@ export default function HomePage() {
         type="website"
       />
       {/* 专题入口（紧凑） */}
-      <div className="px-3 mb-2 grid grid-cols-3 gap-2">
+      <div className="px-3 mb-2 grid grid-cols-2 gap-2">
         {TOPICS.map((t) => (
           <div
             key={t.key}
-            onClick={() => navigate(t.key === 'featured' ? '/wall' : `/topic/${t.key}`)}
+            onClick={() => navigate(`/topic/${t.key}`)}
             className={`bg-gradient-to-br ${t.gradient} rounded-xl p-2.5 text-white relative overflow-hidden cursor-pointer active:scale-[0.97] transition-transform flex flex-col`}
           >
             <div className="absolute -right-3 -top-4 w-12 h-12 rounded-full bg-white/10" />
@@ -221,7 +214,7 @@ export default function HomePage() {
       <div className="px-4 mb-3">
         <div
           onClick={() => navigate('/wall')}
-          className="bg-gradient-to-r from-pink-600 via-rose-500 to-red-500 rounded-xl p-3.5 text-white relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+          className="bg-gradient-to-r from-[#0084FF] to-[#4DA6FF] rounded-xl p-3.5 text-white relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
         >
           <div className="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-white/10" />
           <div className="flex items-center gap-3 relative z-10">

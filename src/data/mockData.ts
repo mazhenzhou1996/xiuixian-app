@@ -10,7 +10,7 @@ const now = Date.now();
 export const MOCK_USERS: IUser[] = [
   {
     id: 'u1',
-    phone: '13800138001',
+    phone: 'mazhenzhou1996@163.com',
     nickname: '青云剑仙',
     password: '123456',
     avatar: avatarImg,
@@ -22,7 +22,7 @@ export const MOCK_USERS: IUser[] = [
   },
   {
     id: 'u2',
-    phone: '13800138002',
+    phone: 'u2@xiuixian.cn',
     nickname: '紫霞真人',
     password: '123456',
     avatar: avatarImg,
@@ -34,7 +34,7 @@ export const MOCK_USERS: IUser[] = [
   },
   {
     id: 'u3',
-    phone: '13800138003',
+    phone: 'u3@xiuixian.cn',
     nickname: '丹道居士',
     password: '123456',
     avatar: avatarImg,

@@ -10,7 +10,7 @@ export default function RegisterPage() {
   usePageTitle('注册');
   const navigate = useNavigate();
   const store = useXiuxianStore();
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,8 +21,8 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!/^1\d{10}$/.test(phone.trim())) {
-      toast.error('请输入正确的手机号');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error('请输入正确的邮箱');
       return;
     }
     if (!nickname.trim()) {
@@ -43,7 +43,7 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      await store.register(phone.trim(), nickname.trim(), password, school.trim());
+      await store.register(email.trim(), nickname.trim(), password, school.trim());
       toast.success('注册成功，欢迎入道！');
       navigate('/', { replace: true });
     } catch (err) {
@@ -67,13 +67,12 @@ export default function RegisterPage() {
       <div className="flex-1 px-8">
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-sm text-gray-600 mb-1.5">手机号</label>
+            <label className="block text-sm text-gray-600 mb-1.5">邮箱</label>
             <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="请输入手机号"
-              maxLength={11}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="请输入邮箱（注册后即为你登录账号）"
               className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
             />
           </div>

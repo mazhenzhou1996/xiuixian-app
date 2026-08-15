@@ -48,10 +48,11 @@ async function main() {
   await client.query(`CREATE POLICY invites_delete_own ON public.invites FOR DELETE TO authenticated USING (auth.uid() = invitee_id OR auth.uid() = inviter_id);`);
   console.log('RLS policies ready');
 
-  const profiles = await client.query(`SELECT id, phone FROM public.profiles WHERE phone IN ('13800138001','13800138002','13800138003')`);
+  // v32：演示邀请已移除，仅保留本人账号（无第二个用户则自然跳过）
+  const profiles = await client.query(`SELECT id, phone FROM public.profiles WHERE phone = 'mazhenzhou1996@163.com'`);
   const p = {};
   profiles.rows.forEach(r => { p[r.phone] = r.id; });
-  if (!p['13800138001'] || !p['13800138002'] || !p['13800138003']) { console.log('profiles missing, skip seed'); await client.end(); return; }
+  if (!p['mazhenzhou1996@163.com']) { console.log('profiles missing, skip seed'); await client.end(); return; }
 
   const qs = await client.query(`SELECT id FROM public.questions ORDER BY id LIMIT 2`);
   if (qs.rows.length < 2) { console.log('not enough questions, skip seed'); await client.end(); return; }
@@ -61,7 +62,7 @@ async function main() {
   if (Number(existing.rows[0].c) === 0) {
     await client.query(
       `INSERT INTO public.invites (inviter_id, invitee_id, question_id) VALUES ($1,$2,$3),($4,$5,$6)`,
-      [p['13800138002'], p['13800138001'], qs.rows[0].id, p['13800138003'], p['13800138001'], qs.rows[1].id]
+      [] // v32：无演示邀请
     );
     console.log('seeded 2 invites');
   }

@@ -136,12 +136,12 @@ export const api = {
     return { user: mapUser(profile), token: data.session?.access_token || '' };
   },
 
-  async register(phone: string, nickname: string, password: string, school?: string) {
+  async register(email: string, nickname: string, password: string, school?: string) {
     const { data, error } = await supabase.auth.signUp({
-      email: phoneToEmail(phone),
+      email: email.trim(),
       password,
       options: {
-        data: { phone, nickname, realm: 'lianqi', school: school || '' },
+        data: { email: email.trim(), nickname, realm: 'lianqi', school: school || '' },
       },
     });
     if (error) throw new Error(error.message || '注册失败');
@@ -157,7 +157,7 @@ export const api = {
     // 未自动登录时（公开注册，邮箱确认由 DB 触发器自动放行），立即用同凭据登录
     if (!data.session) {
       const { error: signinErr } = await supabase.auth.signInWithPassword({
-        email: phoneToEmail(phone),
+        email: email.trim(),
         password,
       });
       if (signinErr) throw new Error('注册成功但自动登录失败，请前往登录页');

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { School, Trophy, ChevronRight, BadgeCheck, ShieldCheck, Users, Loader2, Store, Megaphone, Heart, PackageSearch, Crown, LayoutGrid, ChevronDown, CalendarDays, MapPin, RefreshCw } from 'lucide-react';
+import { School, Trophy, ChevronRight, BadgeCheck, ShieldCheck, Users, Loader2, Store, Megaphone, Heart, PackageSearch, Crown, LayoutGrid, CalendarDays, MapPin, RefreshCw } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import { useXiuxianStore } from '@/store/useStore';
 import { api } from '@/lib/api';
@@ -46,7 +46,6 @@ export default function SchoolCirclePage() {
   const [lostItems, setLostItems] = useState<any[]>([]);
   const [campusBeauty, setCampusBeauty] = useState<any>(null);
   const [services, setServices] = useState<any[]>([]);
-  const [gridExpanded, setGridExpanded] = useState(false);
   // v28b：本校悬赏
   const [campusBounties, setCampusBounties] = useState<any[]>([]);
   // v30：校园活动 + 切换学校
@@ -362,7 +361,7 @@ export default function SchoolCirclePage() {
         </div>
       </div>
 
-      {/* v28：九宫格（前 3 + 更多折叠） */}
+      {/* v28：九宫格（v32 起全部展开） */}
       {services.length > 0 && (
         <div className="px-4 pb-1">
           <div className="bg-white rounded-2xl border border-gray-100 p-4">
@@ -371,7 +370,7 @@ export default function SchoolCirclePage() {
               本校服务
             </div>
             <div className="grid grid-cols-3 gap-y-4">
-              {services.slice(0, gridExpanded ? services.length : 3).map((sv: any) => (
+              {services.map((sv: any) => (
                 <button
                   key={sv.id}
                   onClick={() => navigate(`/service/${sv.id}`)}
@@ -384,15 +383,6 @@ export default function SchoolCirclePage() {
                 </button>
               ))}
             </div>
-            {services.length > 3 && (
-              <button
-                onClick={() => setGridExpanded((v) => !v)}
-                className="w-full h-8 mt-2.5 rounded-lg bg-gray-50 text-gray-500 text-xs font-medium flex items-center justify-center gap-1"
-              >
-                {gridExpanded ? '收起' : `更多服务（${services.length - 3}）`}
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${gridExpanded ? 'rotate-180' : ''}`} />
-              </button>
-            )}
           </div>
         </div>
       )}

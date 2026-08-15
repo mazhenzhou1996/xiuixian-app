@@ -151,8 +151,8 @@ export function useXiuxianStore() {
     setPrefs({ hideContent: !!res.user.hideContent, enablePersonalized: res.user.enablePersonalized !== false });
   }, []);
 
-  const register = useCallback(async (phone: string, nickname: string, password: string, school?: string) => {
-    const res = await api.register(phone, nickname, password, school);
+  const register = useCallback(async (email: string, nickname: string, password: string, school?: string) => {
+    const res = await api.register(email, nickname, password, school);
     clearAllCache();
     setCurrentUser(res.user);
     setPrefs({ hideContent: !!res.user.hideContent, enablePersonalized: res.user.enablePersonalized !== false });
