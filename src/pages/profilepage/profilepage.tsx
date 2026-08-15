@@ -17,6 +17,8 @@ import {
   Trash2,
   Star,
   Send,
+  Download,
+  FileText,
 } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import Avatar from '@/components/Avatar';
@@ -140,6 +142,13 @@ export default function ProfilePage() {
     ...(currentUser?.isAdmin ? [{ label: '管理后台', icon: Shield, color: 'text-violet-600 bg-violet-50', count: null, path: '/admin' }] : []),
     { label: '联系客服', icon: Headphones, color: 'text-teal-600 bg-teal-50', count: null, onClick: () => setContactOpen(true) },
     { label: '设置', icon: Settings, color: 'text-gray-600 bg-gray-100', count: null, path: '/settings' },
+  ];
+  // 关于组（v36）：下载 / 隐私 / 协议 / 版本日志
+  const aboutItems = [
+    { label: '下载 App', icon: Download, color: 'text-blue-600 bg-blue-50', count: null, path: '/download' },
+    { label: '隐私政策', icon: ShieldCheck, color: 'text-blue-600 bg-blue-50', count: null, path: '/privacy' },
+    { label: '用户协议', icon: FileText, color: 'text-blue-600 bg-blue-50', count: null, path: '/terms' },
+    { label: '版本日志', icon: History, color: 'text-blue-600 bg-blue-50', count: null, path: '/changelog' },
   ];
 
   return (
@@ -295,6 +304,23 @@ export default function ProfilePage() {
             <div
               key={item.label}
               onClick={() => (item.onClick ? item.onClick() : navigate(item.path!))}
+              className="flex items-center gap-3 p-3.5 cursor-pointer hover:bg-gray-50 transition-colors"
+            >
+              <div className={`w-8 h-8 rounded-full ${item.color} flex items-center justify-center shrink-0`}>
+                <item.icon className="w-4 h-4" />
+              </div>
+              <span className="text-sm text-gray-700 flex-1">{item.label}</span>
+              <ChevronRight className="w-4 h-4 text-gray-300" />
+            </div>
+          ))}
+        </div>
+
+        {/* 关于（v36） */}
+        <div className="bg-white rounded-xl divide-y divide-gray-50 overflow-hidden mt-3">
+          {aboutItems.map((item) => (
+            <div
+              key={item.label}
+              onClick={() => navigate(item.path!)}
               className="flex items-center gap-3 p-3.5 cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <div className={`w-8 h-8 rounded-full ${item.color} flex items-center justify-center shrink-0`}>

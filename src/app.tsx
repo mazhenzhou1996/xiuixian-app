@@ -51,6 +51,10 @@ const RecyclePage = lazy(() => import('@/pages/recyclepage/recyclepage'));
 const MyEarningsPage = lazy(() => import('@/pages/myearningspage/myearningspage'));
 const SchoolCirclePage = lazy(() => import('@/pages/schoolcirclepage/schoolcirclepage'));
 const NotificationsPage = lazy(() => import('@/pages/notificationspage/notificationspage'));
+const PrivacyPage = lazy(() => import('@/pages/aboutpage/privacy'));
+const TermsPage = lazy(() => import('@/pages/aboutpage/terms'));
+const ChangelogPage = lazy(() => import('@/pages/aboutpage/changelog'));
+const DownloadPage = lazy(() => import('@/pages/aboutpage/downloadpage'));
 
 // 路由切换时回到页面顶部（避免新页面停留在上次滚动位置）
 function ScrollToTop() {
@@ -114,6 +118,10 @@ export default function App() {
             <Route path="bounty/:id" element={<BountyPage />} />
             <Route path="recycle" element={<RecyclePage />} />
             <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="privacy" element={<PrivacyPage />} />
+            <Route path="terms" element={<TermsPage />} />
+            <Route path="changelog" element={<ChangelogPage />} />
+            <Route path="download" element={<DownloadPage />} />
             <Route path="service/:serviceId" element={<ServiceContentPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="settings/profile" element={<ProfileSettingsPage />} />
