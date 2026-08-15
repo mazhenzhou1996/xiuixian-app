@@ -318,6 +318,11 @@ export default function ProfilePage() {
         </button>
       </div>
 
+      {/* 版本信息（v36） */}
+      <div className="px-4 pt-3 pb-1 text-center text-[10px] text-gray-300">
+        修仙问答 v36 · 2026-08-15
+      </div>
+
       {/* 联系客服弹窗 */}
       <Dialog open={contactOpen} onOpenChange={setContactOpen}>
         <DialogContent>

@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 // 注：纯静态预渲染（给不执行 JS 的百度基础爬虫）由 scripts/prerender.cjs 在构建时生成。
 
 const SITE_NAME = "修仙问答";
-const SITE_URL = import.meta.env.VITE_SITE_URL || "https://xiuixian.app";
+const SITE_URL = import.meta.env.VITE_SITE_URL || window.location.origin;
 const DEFAULT_DESC =
   "修仙问答 —— 专属于高校学子的修仙主题问答社区。考研择校、四六级、考公考编、求职面试、宿舍生活、挂科逆袭，修仙路上的每一个疑问，都有学长学姐为你解答。下沉高校，同道共修。";
 const DEFAULT_KEYWORDS =

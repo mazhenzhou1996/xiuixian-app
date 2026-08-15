@@ -6,6 +6,8 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- CSP（v36）：基础 XSS 防护；Supabase REST/Realtime 与内联样式按需放行 -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://nwxtyxjborhrbesssopg.supabase.co wss://nwxtyxjborhrbesssopg.supabase.co; font-src 'self' data:; worker-src 'self'; manifest-src 'self'" />
     <meta name="theme-color" content="#2563eb" />
     <!-- SEO：规范链接（部署后由 VITE_SITE_URL 注入，避免 www/非www 权重分散） -->
     <link rel="canonical" href="https://mazhenzhou1996.github.io/xiuixian-app/" />

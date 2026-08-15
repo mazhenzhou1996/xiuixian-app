@@ -11,7 +11,7 @@ Disallow: /admin
 Disallow: /settings
 
 # 站点地图（提交给各搜索引擎可显著加快收录）
-Sitemap: https://xiuixian.app/sitemap.xml
+Sitemap: https://mazhenzhou1996.github.io/xiuixian-app/sitemap.xml
 
 # 主机名规范（避免镜像站分散权重）
-Host: https://xiuixian.app
+Host: https://mazhenzhou1996.github.io/xiuixian-app
