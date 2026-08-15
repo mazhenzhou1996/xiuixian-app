@@ -4,8 +4,20 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 // 部署子路径支持：GitHub Pages 等子路径托管（如 /xiuixian-app/）需要 basename。
-// 默认 "/"（根域名部署）；子路径部署在 .env 设置 VITE_BASENAME=/xiuixian-app
-const BASENAME: string = (import.meta.env.VITE_BASENAME as string | undefined) || '/';
+// v36：自动推导部署根——取 pathname 第一段作为 basename（/xiuixian-app/ → /xiuixian-app/，根域名 → /），
+// 换域名/换托管零配置；也可用 .env 的 VITE_BASENAME 覆盖。
+function deriveBasename(): string {
+  try {
+    const p = window.location.pathname;
+    if (!p || p === '/') return '/';
+    const first = p.split('/')[1];
+    if (!first) return '/';
+    return '/' + first + '/';
+  } catch {
+    return '/';
+  }
+}
+const BASENAME: string = (import.meta.env.VITE_BASENAME as string | undefined) || deriveBasename();
 import { ErrorBoundary } from "react-error-boundary";
 import App from "./app";
 import { SeoProvider } from "./components/Seo";
