@@ -33,6 +33,7 @@ import { useXiuxianStore } from '@/store/useStore';
 import { api } from '@/lib/api';
 import InviteDialog from '@/components/invitedialog';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { formatTime } from '@/utils/format';
 import { formatCount } from '@/utils/format';
 import { Seo, qaJsonLd } from '@/components/Seo';
 
@@ -338,6 +339,11 @@ export default function QuestionDetailPage() {
                 主页
               </button>
             </>
+          )}
+          {question.createdAt && (
+            <span className="text-xs text-gray-400 shrink-0">
+              发布于 {formatTime(new Date(question.createdAt).getTime())}
+            </span>
           )}
           <div className="ml-auto flex items-center gap-4">
             {/* v19：邀请回答（所有登录用户）+ 追加悬赏（仅提问者） */}

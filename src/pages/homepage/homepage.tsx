@@ -60,6 +60,7 @@ export default function HomePage() {
     import('@/lib/features').then(({ listHotSearch }) => listHotSearch(10).then(setHotSearch).catch(() => {})).catch(() => {});
   }, []);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [showGuide, setShowGuide] = useState(() => !localStorage.getItem('xiuixian-guide-v1'));
   const [moreAvailable, setMoreAvailable] = useState(true);
 
   // 加载本校热门 + 关注动态（个性化推流）
@@ -108,6 +109,25 @@ export default function HomePage() {
         keywords="高校问答,大学问答,考研,四六级,考公,求职,简历,宿舍,挂科,学长学姐,修仙问答,大学生论坛"
         type="website"
       />
+      {/* 新手引导条（v37，首次访问显示一次） */}
+      {showGuide && (
+        <div className="px-3 mb-2">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl px-4 py-3 flex items-center gap-3">
+            <div className="text-xl">🎓</div>
+            <div className="flex-1 min-w-0 text-xs text-gray-600 leading-relaxed">
+              欢迎来到<b className="text-gray-800">修仙问答</b>！搜索框找答案，<b className="text-gray-800">提问&amp;悬赏</b>发布问题，遇到学长学姐可<b className="text-gray-800">付费咨询</b>。
+            </div>
+            <button
+              onClick={() => { localStorage.setItem('xiuixian-guide-v1', '1'); setShowGuide(false); }}
+              className="shrink-0 text-gray-400 hover:text-gray-600 text-lg leading-none"
+              aria-label="关闭引导"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 专题入口（紧凑） */}
       <div className="px-3 mb-2 grid grid-cols-2 gap-2">
         {TOPICS.map((t) => (

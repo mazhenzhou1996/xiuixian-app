@@ -45,6 +45,19 @@ export const Layout = () => {
     window.addEventListener('xiuixian-sw-update', onUpdate);
     return () => window.removeEventListener('xiuixian-sw-update', onUpdate);
   }, []);
+
+  // 网络状态横幅（v37）
+  const [offline, setOffline] = useState(!navigator.onLine);
+  useEffect(() => {
+    const on = () => setOffline(false);
+    const off = () => setOffline(true);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
   useEffect(() => {
     const handler = (e: any) => {
       e.preventDefault();
@@ -190,6 +203,15 @@ export const Layout = () => {
       <BottomNav />
 
       {/* 申诉弹窗 */}
+      {/* 网络离线横幅（v37） */}
+      {offline && (
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 z-[70] w-full max-w-[720px]">
+          <div className="bg-red-500 text-white text-xs font-medium text-center py-2">
+            网络已断开，部分内容可能无法加载
+          </div>
+        </div>
+      )}
+
       {/* PWA 安装提示（v37） */}
       {installEvt && !localStorage.getItem('xiuixian-install-dismissed') && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[55] w-[calc(100%-2rem)] max-w-md">
