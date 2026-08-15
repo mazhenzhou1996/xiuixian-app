@@ -4,7 +4,7 @@
 //  2) 导航请求 → 网络优先，失败回退到缓存的 index.html（离线可用、SPA 不白屏）
 //  3) 其他 GET → 网络优先，成功则写入缓存
 // 注意：CACHE 用稳定版本号，避免每次加载换新名导致缓存永不复用、白费流量。
-const CACHE = 'xiuixian-v26';
+const CACHE = 'xiuixian-v36';
 // 基于 SW 自身 URL 推导部署根路径，兼容根域名与子路径（GitHub Pages）
 const BASE = self.location.pathname.replace(/\/sw\.js$/, '');
 const APP_SHELL = [BASE + '/', BASE + '/index.html', BASE + '/manifest.webmanifest', BASE + '/favicon.svg'];

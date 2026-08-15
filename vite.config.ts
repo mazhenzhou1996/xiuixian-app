@@ -87,6 +87,8 @@ export default defineConfig({
         manualChunks(id) {
           // v23 遵循规格铁律：vendor 单包（多分包曾触发 chunk 循环依赖，白屏风险）
           if (!id.includes('node_modules')) return undefined;
+          // v36：lucide-react 为纯图标库（零依赖），独立分包安全且首屏可并行下载
+          if (id.includes('node_modules/lucide-react')) return 'icons';
           return 'vendor';
         },
       },
